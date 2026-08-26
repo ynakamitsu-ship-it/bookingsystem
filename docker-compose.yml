@@ -36,6 +36,8 @@ services:
     - ./app:/var/www/html
     - ./docker/php/check_startup.sh:/tmp/check_startup.sh
     # サーバーに対してオープンするポートを指定
+    ports:
+     - "5173:5173"
     expose:
       - "9000"
     depends_on:
