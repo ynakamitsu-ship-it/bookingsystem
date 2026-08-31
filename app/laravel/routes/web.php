@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\HomeController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -18,5 +18,11 @@ Route::get('/', function () {
 });
 
 Auth::routes();
+Route::group(['middleware' => 'auth'], function() {
 
+});
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/post/{id}', [HomeController::class, 'post']);
+Route::get('/booking/{id}', [HomeController::class, 'booking']);
+Route::post('/booking/{id}/confirm', [HomeController::class, 'bookingConfirm']);
+Route::post('/booking/{id}/reserve', [HomeController::class, 'reserve']);
