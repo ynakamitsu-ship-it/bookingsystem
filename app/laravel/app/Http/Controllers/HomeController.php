@@ -4,14 +4,38 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Booking;
+use App\Models\Report;
+use App\Models\User;
+use App\Models\Bookmark;
+
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class HomeController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except(['storeRegister']);
     }
+
+public function storeRegister(Request $request)
+{
+    $request->validate([
+        'store_name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|confirmed|min:8',
+    ]);
+
+    User::create([
+        'name' => $request->store_name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => 1,
+    ]);
+
+    return redirect('/login')->with('success', '店舗アカウントを登録しました');
+}
 
     public function index(Request $request)
     {
@@ -90,9 +114,53 @@ public function reserve(Request $request, $id)
         'checkin_date' => $request->checkin,
         'checkout_date' => $request->checkout,
         'booking_people' => $request->people,
-        'del_flg' =>0,
+        'del_flg' => 0,
     ]);
 
-    return redirect('/home');
+    return redirect('booking_comp');
+}
+
+public function bookmark($id)
+{
+    Bookmark::firstOrCreate([
+        'user_id' => Auth::id(),
+        'post_id' => $id,
+    ]);
+
+    return redirect('/post/' . $id);
+}
+
+public function bookmarkList()
+{
+    $bookmarks = Bookmark::with('post')
+        ->where('user_id', auth()->id())
+        ->get();
+
+    return view('bookmark_list', compact('bookmarks'));
+}
+
+public function report($id)
+{
+    $post = Post::findOrFail($id);
+
+    return view('report', compact('post'));
+}
+
+public function reportComplete(Request $request, $id)
+{
+    $post = Post::findOrFail($id);
+
+    Report::create([
+        'user_id' => auth()->id(),
+        'post_id' => $post->id,
+        'report_reason' => $request->reason,
+    ]);
+
+    return view('report_comp');
+}
+
+public function mypage()
+{
+    return view('general_mypage');
 }
 }

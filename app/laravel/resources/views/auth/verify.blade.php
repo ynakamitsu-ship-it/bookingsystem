@@ -1,28 +1,33 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Verify Your Email Address') }}</div>
+<div class="card-header">
+    メールアドレスの確認
+</div>
 
-                <div class="card-body">
-                    @if (session('resent'))
-                        <div class="alert alert-success" role="alert">
-                            {{ __('A fresh verification link has been sent to your email address.') }}
-                        </div>
-                    @endif
+<div class="card-body">
 
-                    {{ __('Before proceeding, please check your email for a verification link.') }}
-                    {{ __('If you did not receive the email') }},
-                    <form class="d-inline" method="POST" action="{{ route('verification.resend') }}">
-                        @csrf
-                        <button type="submit" class="btn btn-link p-0 m-0 align-baseline">{{ __('click here to request another') }}</button>.
-                    </form>
-                </div>
-            </div>
+    @if (session('resent'))
+        <div class="alert alert-success" role="alert">
+            確認用のリンクをメールアドレスに送信しました。
         </div>
-    </div>
+    @endif
+
+    <p>
+        続行する前に、メールアドレスに届いた確認リンクをクリックしてください。
+    </p>
+
+    <p>
+        メールが届いていない場合
+    </p>
+
+    <form class="d-inline" method="POST" action="{{ route('verification.resend') }}">
+        @csrf
+
+        <button type="submit" class="btn btn-link p-0 m-0 align-baseline">
+            こちらをクリックして再送信してください
+        </button>
+    </form>
+
 </div>
 @endsection

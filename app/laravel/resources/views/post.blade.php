@@ -33,9 +33,12 @@
             <p>予約可能人数：{{ $post->max_people }}人</p>
 
             {{-- ⑦ブックマーク --}}
-            <button type="button" class="btn btn-secondary">
-                ブックマーク
-            </button>
+           <form action="{{ url('/post/' . $post->id . '/bookmark') }}" method="POST" style="display:inline;">
+            @csrf
+            <button type="submit" class="btn btn-secondary">
+        ブックマーク
+        </button>
+            </form>
 
             {{-- ⑧予約 --}}
             <a href="{{ url('/booking/' . $post->id) }}" class="btn btn-primary">
@@ -43,9 +46,14 @@
             </a>
 
             {{-- ⑨通報 --}}
-            <button type="button" class="btn btn-danger">
-                通報
-            </button>
+            <form action="{{ url('/report/' . $post->id) }}" method="GET">
+    @csrf
+    <button
+                        type="submit"
+                        class="btn btn-danger">
+                        通報
+                    </button>
+</form>
 
         </div>
 

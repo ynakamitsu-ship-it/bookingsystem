@@ -9,14 +9,14 @@ class Report extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
 
     protected $fillable = [
         'user_id',
         'post_id',
         'report_reason',
-        'created_at',
     ];
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = null;
 
     public function user()
     {
