@@ -19,23 +19,6 @@ class HomeController extends Controller
         $this->middleware('auth')->except(['storeRegister']);
     }
 
-public function storeRegister(Request $request)
-{
-    $request->validate([
-        'store_name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|confirmed|min:8',
-    ]);
-
-    User::create([
-        'name' => $request->store_name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => 1,
-    ]);
-
-    return redirect('/login')->with('success', '店舗アカウントを登録しました');
-}
 
     public function index(Request $request)
     {
@@ -73,19 +56,80 @@ public function storeRegister(Request $request)
         return view('home', compact('posts'));
     }
 
+    public function innMain()
+{
+    $posts = Post::where('user_id', auth()->id())
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('inn_main', compact('posts'));
+}
+
+public function createPost()
+{
+    return view('create_post');
+}
+
+public function confirmPost(Request $request)
+{
+    return view('create_post_conf', [
+        'title' => $request->title,
+        'address' => $request->address,
+        'price' => $request->price,
+        'reserve_date' => $request->reserve_date,
+        'max_people' => $request->max_people,
+        'content' => $request->content,
+    ]);
+}
+
+
+
+public function storePost(Request $request)
+{
+    $post = new Post();
+
+    $post->user_id = Auth::id();
+    $post->title = $request->title;
+    $post->content = $request->content;
+    $post->address = $request->address;
+    $post->price = $request->price;
+    $post->max_people = $request->max_people;
+    $post->reserve_date = $request->reserve_date;
+    $post->del_flg = 0;
+
+    if ($request->hasFile('image')) {
+        $image = $request->file('image');
+        $path = $image->store('images', 'public');
+        $post->image_path = $path;
+    }
+
+    $post->save();
+
+    return redirect()->route('inn_main');
+}
+
     public function post($id)
 {
     $post = Post::findOrFail($id);
 
-    return view('post', compact('post'));
+     $isBooked = Booking::where('user_id', auth()->id())
+        ->where('post_id', $post->id)
+        ->where('del_flg', 0)
+        ->exists();
+
+   return view('post', compact('post', 'isBooked'));
 }
 
-public function booking($id)
+public function innPost($id)
 {
     $post = Post::findOrFail($id);
 
-    return view('booking', compact('post'));
+    return view('inn_post', [
+        'post' => $post
+    ]);
 }
+
+
 
 public function bookingConfirm(Request $request, $id)
 {
@@ -105,6 +149,15 @@ public function bookingConfirm(Request $request, $id)
 public function reserve(Request $request, $id)
 {
     $post = Post::findOrFail($id);
+
+    $exists = Booking::where('user_id', auth()->id())
+    ->where('post_id', $post->id)
+    ->where('del_flg', 0)
+    ->exists();
+
+if ($exists) {
+    return back()->with('error', 'この旅館はすでに予約済みです。');
+}
 
     Booking::create([
         'user_id' => auth()->id(),
@@ -130,6 +183,15 @@ public function bookmark($id)
     return redirect('/post/' . $id);
 }
 
+public function mybookingList()
+{
+    $bookings = Booking::where('user_id', auth()->id())
+        ->where('del_flg', 0)
+        ->with('post')
+        ->get();
+
+    return view('mybooking_list', compact('bookings'));
+}
 public function bookmarkList()
 {
     $bookmarks = Bookmark::with('post')

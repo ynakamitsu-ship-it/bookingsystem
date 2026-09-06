@@ -40,10 +40,16 @@
         </button>
             </form>
 
-            {{-- ⑧予約 --}}
-            <a href="{{ url('/booking/' . $post->id) }}" class="btn btn-primary">
-            予約
-            </a>
+            {{-- 予約 --}}
+@if($isBooked)
+    <button type="button" class="btn btn-secondary" disabled>
+        予約済み
+    </button>
+@else
+    <a href="{{ url('/booking/' . $post->id) }}" class="btn btn-primary">
+        予約
+    </a>
+@endif
 
             {{-- ⑨通報 --}}
             <form action="{{ url('/report/' . $post->id) }}" method="GET">

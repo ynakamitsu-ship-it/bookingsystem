@@ -49,7 +49,7 @@
                         戻る
                     </a>
 
-                   <form action="{{ route('report_complete', $post->id) }}" method="POST" class="d-inline">
+                   <form action="{{ route('report_comp', $post->id) }}" method="POST" class="d-inline">
     @csrf
 
     <input type="hidden" name="reason" value="{{ $reason }}">

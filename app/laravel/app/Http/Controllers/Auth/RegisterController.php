@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\Request;
 
 class RegisterController extends Controller
 {
@@ -67,4 +68,23 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
         ]);
     }
+
+    public function storeRegister(Request $request)
+{
+    $request->validate([
+        'store_name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|confirmed|min:8',
+    ]);
+
+    User::create([
+        'name' => $request->store_name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => 1,
+    ]);
+
+    return redirect('/login')->with('success', '店舗アカウントを登録しました');
+}
+
 }

@@ -46,11 +46,22 @@
                            
                         @else
                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('general_mypage') }}">
-                                {{ Auth::user()->name }}
-                                 </a>
-                            </li>
+                                    @if(Auth::user()->role == 0)
 
+                                    {{-- 一般ユーザー --}}
+                            <a class="nav-link" href="{{ route('general_mypage') }}">
+                                    {{ Auth::user()->name }}
+                            </a>
+
+                            @elseif(Auth::user()->role == 1)
+
+                        {{-- 旅館運営ユーザー --}}
+                                <a class="nav-link" href="{{ route('inn_main') }}">
+                                        {{ Auth::user()->name }}
+                                 </a>
+
+                                 @endif
+                                </li>
                                 <li class="nav-item">
                                 <a class="nav-link" href="{{ route('logout') }}"
                                          onclick="event.preventDefault();
