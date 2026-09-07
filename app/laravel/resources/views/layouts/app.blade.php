@@ -56,7 +56,7 @@
                             @elseif(Auth::user()->role == 1)
 
                         {{-- 旅館運営ユーザー --}}
-                                <a class="nav-link" href="{{ route('inn_main') }}">
+                                <a class="nav-link" href="{{ route('inn_mypage') }}">
                                         {{ Auth::user()->name }}
                                  </a>
 

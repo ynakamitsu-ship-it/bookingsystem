@@ -19,6 +19,128 @@ class HomeController extends Controller
         $this->middleware('auth')->except(['storeRegister']);
     }
 
+    public function accountEdit()
+{
+    return view('account_edit');
+}
+
+public function deleteAccountPage()
+{
+    $user = auth()->user();
+
+    return view('delete_account', compact('user'));
+}
+
+public function deleteAccount()
+{
+    $user = auth()->user();
+
+    $user->delete();
+
+    auth()->logout();
+
+    return redirect()->route('home');
+}
+
+public function accountEditConf(Request $request)
+{
+    $request->validate([
+        'name' => 'required',
+        'email' => 'required|email',
+    ]);
+
+    return view('account_edit_conf', [
+        'name' => $request->name,
+        'email' => $request->email,
+        'icon' => $request->file('icon'),
+    ]);
+}
+public function accountUpdate(Request $request)
+{
+    $user = auth()->user();
+
+    $request->validate([
+        'name' => 'required',
+        'email' => 'required|email',
+    ]);
+
+    $user->name = $request->name;
+    $user->email = $request->email;
+
+    $user->save();
+
+    return redirect()->route('general_mypage');
+}
+
+
+public function innMypage()
+{
+    $user = auth()->user();
+
+    return view('inn_mypage', compact('user'));
+}
+
+public function innAccountEdit()
+{
+    $user = auth()->user();
+
+    return view('inn_account_edit', compact('user'));
+}
+public function innAccountEditConf(Request $request)
+{
+    $user = auth()->user();
+
+    return view('inn_account_edit_conf', [
+        'user' => $user,
+        'name' => $request->name,
+        'email' => $request->email,
+        'icon' => $request->file('icon'),
+    ]);
+}
+
+public function innAccountUpdate(Request $request)
+{
+    $user = auth()->user();
+
+    $user->name = $request->name;
+    $user->email = $request->email;
+
+    $user->save();
+
+    return redirect()->route('inn_mypage');
+}
+
+public function innDeleteAccount()
+{
+    $user = auth()->user();
+
+    return view('inn_delete_account', compact('user'));
+}
+public function innDeleteAccountPost()
+{
+    $user = auth()->user();
+
+    Auth::logout();
+
+    $user->delete();
+
+    return redirect()->route('home');
+}
+
+public function innBookingList()
+{
+    $user = auth()->user();
+
+    $bookings = \DB::table('bookings')
+        ->join('posts', 'bookings.post_id', '=', 'posts.id')
+        ->where('posts.user_id', $user->id)
+        ->select(
+            'bookings.*'
+        )
+        ->get();
+
+    return view('innbooking_list', compact('bookings'));
+}
 
     public function index(Request $request)
     {
@@ -192,6 +314,39 @@ public function mybookingList()
 
     return view('mybooking_list', compact('bookings'));
 }
+
+public function bookingConf($id)
+{
+    $booking = Booking::with('post')
+        ->where('id', $id)
+        ->where('user_id', auth()->id())
+        ->where('del_flg', 0)
+        ->firstOrFail();
+
+    return view('mybooking_conf', compact('booking'));
+}
+
+public function deleteMybooking($id)
+{
+    $booking = Booking::with('post')
+        ->where('id', $id)
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+
+    return view('delete_mybooking', compact('booking'));
+}
+
+public function deleteMybookingPost($id)
+{
+    $booking = Booking::where('id', $id)
+        ->where('user_id', auth()->id())
+        ->firstOrFail();
+
+    $booking->delete();
+
+    return redirect()->route('mybooking_list');
+}
+
 public function bookmarkList()
 {
     $bookmarks = Bookmark::with('post')

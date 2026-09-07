@@ -5,6 +5,11 @@
 <div class="container">
 
     <h1 class="text-center mb-5">予約一覧</h1>
+    <div class="text-center mt-4 mb-4">
+    <a href="{{ route('general_mypage') }}" class="btn btn-secondary">
+        ⑨戻る
+    </a>
+</div>
 
     @foreach($bookings as $booking)
 
