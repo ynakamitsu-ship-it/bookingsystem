@@ -38,6 +38,7 @@ Route::post('/inn_account_update', [HomeController::class, 'innAccountUpdate'])-
 Route::get('/inn_delete_account', [HomeController::class, 'innDeleteAccount'])->name('inn_delete_account');
 Route::post('/inn_delete_account', [HomeController::class, 'innDeleteAccountPost'])->name('inn_delete_account_post');
 Route::get('/innbooking_list', [HomeController::class, 'innBookingList'])->name('innbooking_list');
+Route::get('/innbooking/{id}/conf', [HomeController::class, 'innBookingConf'])->name('innbooking_conf');
 Route::get('/store/register', function () { return view('auth.store_register');})->name('store.register');
 Route::post('/store/register', [RegisterController::class, 'storeRegister'])->name('store-register.store');
 Route::get('/account_edit', function () { return view('account_edit');})->name('account_edit');
@@ -56,7 +57,14 @@ Route::get('/booking/{id}', [HomeController::class, 'booking']);
 Route::get('/booking/{id}/conf', [HomeController::class, 'bookingConf'])->name('booking_conf');
 Route::post('/booking/{id}/reserve', [HomeController::class, 'reserve']);
 Route::get('/booking_comp', function () {return view('booking_comp');});
+Route::delete('/post/{id}', [HomeController::class, 'deletePost'])->name('post_delete');
 Route::get('/report/{id}', [HomeController::class, 'report']);
 Route::post('/report/{id}/conf', function ($id) {$post = \App\Models\Post::findOrFail($id);$reason = 
 request('reason');return view('report_conf', ['reason' => $reason,'post' => $post]);})->name('report.conf');
 Route::post('/report/{id}/comp', [HomeController::class, 'reportComplete'])->name('report_comp');
+Route::get('/inn/report/{id}', [HomeController::class, 'innReport'])->name('inn_report');
+Route::post('/inn/report/{id}/conf', [HomeController::class, 'innReportConf'])->name('inn_report_conf');
+Route::post('/inn/report/{id}/comp', [HomeController::class, 'innReportComp'])->name('inn_report_comp');
+Route::get('/edit_post/{id}', [HomeController::class, 'editPost'])->name('edit_post');
+Route::post('/edit_post/{id}/conf', [HomeController::class, 'editPostConf'])->name('edit_post_conf');
+Route::post('/edit_post/{id}', [HomeController::class, 'updatePost'])->name('edit_post.update');

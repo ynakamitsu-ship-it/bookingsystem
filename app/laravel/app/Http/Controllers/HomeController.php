@@ -268,6 +268,13 @@ public function bookingConfirm(Request $request, $id)
     return view('booking_confirm', compact('post', 'booking'));
 }
 
+public function innBookingConf($id)
+{
+    $booking = \App\Models\Booking::with(['post'])->findOrFail($id);
+
+    return view('innbooking_conf', compact('booking'));
+}
+
 public function reserve(Request $request, $id)
 {
     $post = Post::findOrFail($id);
@@ -376,8 +383,91 @@ public function reportComplete(Request $request, $id)
     return view('report_comp');
 }
 
+public function innReport($id)
+{
+    $booking = Booking::with('user')->findOrFail($id);
+
+    return view('inn_report', [
+        'booking' => $booking
+    ]);
+}
+
+public function innReportConf(Request $request, $id)
+{
+    $booking = Booking::with('user')->findOrFail($id);
+
+    $reason = $request->input('reason');
+
+    return view('inn_report_conf', [
+        'booking' => $booking,
+        'reason' => $reason
+    ]);
+}
+
+public function innReportComp(Request $request, $id)
+{
+    $booking = Booking::findOrFail($id);
+
+    Report::create([
+        'user_id' => $booking->user_id,
+        'post_id' => $booking->post_id,
+        'report_reason' => $request->input('reason'),
+    ]);
+
+    return view('inn_report_comp', [
+        'booking' => $booking
+    ]);
+}
+
 public function mypage()
 {
     return view('general_mypage');
+}
+
+public function editPost($id)
+{
+    $post = Post::findOrFail($id);
+
+    return view('edit_post', compact('post'));
+}
+
+public function editPostConf(Request $request, $id)
+{
+    $post = Post::findOrFail($id);
+
+    return view('edit_post_conf', [
+        'post' => $post,
+        'title' => $request->title,
+        'image' => $request->image,
+        'price' => $request->price,
+        'reserve_date' => $request->reserve_date,
+        'max_people' => $request->max_people,
+        'content' => $request->content,
+    ]);
+}
+public function updatePost(Request $request, $id)
+{
+    $post = Post::findOrFail($id);
+
+    $post->update([
+        'title' => $request->title,
+        'price' => $request->price,
+        'reserve_date' => $request->reserve_date,
+        'max_people' => $request->max_people,
+        'content' => $request->content,
+    ]);
+
+    return redirect()->route('inn_post', ['id' => $id]);
+}
+
+public function deletePost($id)
+{
+    $post = Post::findOrFail($id);
+    Booking::where('post_id', $id)->delete();
+    Report::where('post_id', $id)->delete();
+
+    $post->delete();
+
+    return redirect()->route('inn_main');
 }
 }

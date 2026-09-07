@@ -35,10 +35,10 @@
                 {{ $booking->checkout_date }}
             </p>
 
-            <a href="#"
-               class="btn btn-primary">
-                ① 確認
-            </a>
+            <a href="{{ route('innbooking_conf', $booking->id) }}"
+                class="btn btn-primary">
+                    ① 確認
+                </a>
 
         </div>
 

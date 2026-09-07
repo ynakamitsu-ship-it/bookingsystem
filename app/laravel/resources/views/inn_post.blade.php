@@ -121,16 +121,25 @@
         <div class="d-flex justify-content-center gap-5">
 
             {{-- 投稿削除 --}}
-            <a href="#"
-               class="btn btn-outline-danger px-5">
-                投稿削除
-            </a>
+            <form action="{{ route('post_delete', $post->id) }}" method="POST">
+                @csrf
+                @method('DELETE')
+
+                <button type="submit" class="btn btn-danger px-5">
+                     投稿削除
+                </button>
+            </form>
 
             {{-- 投稿編集 --}}
-            <a href="#"
-               class="btn btn-outline-primary px-5">
-                投稿編集
-            </a>
+                <a href="{{ route('edit_post', $post->id) }}"
+                    class="btn btn-outline-primary px-5">
+                    投稿編集
+                </a>
+                
+                <a href="{{ route('inn_main') }}"
+                        class="btn btn-outline-secondary px-5">
+                 旅館運営ユーザーページへ戻る
+                </a>
 
         </div>
 

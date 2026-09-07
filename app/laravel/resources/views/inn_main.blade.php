@@ -36,10 +36,10 @@
                         {{ $post->address }}
                     </p>
 
-                    {{-- 投稿日 --}}
+                    {{-- 予約可能日 --}}
                     <p class="card-text">
                         <small class="text-muted">
-                            投稿日：
+                            予約可能日：
                             {{ $post->reserve_date }}
                         </small>
                     </p>
