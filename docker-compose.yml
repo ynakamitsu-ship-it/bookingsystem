@@ -70,3 +70,9 @@ services:
       - 4040:80
     volumes:
       - ./phpmyadmin/sessions:/sessions
+      
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"

@@ -18,7 +18,16 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/password/reset/send-complete', function () {
+    return view('auth.passwords.send_complete');
+})->name('password.reset.send.complete');
+
+Route::get('/password/reset/complete', function () {
+    return view('auth.passwords.complete');
+})->name('password.reset.complete');
+
 Auth::routes();
+
 Route::group(['middleware' => 'auth'], function() {
 
 });
