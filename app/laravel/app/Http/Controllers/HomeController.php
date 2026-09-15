@@ -16,8 +16,45 @@ class HomeController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except(['storeRegister']);
+        $this->middleware('auth')->except(['top','post']);
     }
+
+    public function top(Request $request)
+{
+    $query = Post::with('user')
+        ->where('del_flg', 0)
+        ->whereHas('user', function ($q) {
+            $q->where('del_flg', 0);
+        });
+
+    // タイトル・内容・住所・店舗名から検索
+    if ($request->filled('keyword')) {
+        $keyword = $request->keyword;
+
+        $query->where(function ($q) use ($keyword) {
+            $q->where('title', 'like', '%' . $keyword . '%')
+              ->orWhere('content', 'like', '%' . $keyword . '%')
+              ->orWhere('address', 'like', '%' . $keyword . '%')
+              ->orWhereHas('user', function ($userQuery) use ($keyword) {
+                  $userQuery->where('name', 'like', '%' . $keyword . '%');
+              });
+        });
+    }
+
+    // 宿泊予定日
+    if ($request->filled('reserve_date')) {
+        $query->where('reserve_date', '>=', $request->reserve_date);
+    }
+
+    // 金額
+    if ($request->filled('price')) {
+        $query->where('price', '<=', $request->price);
+    }
+
+    $posts = $query->latest()->get();
+
+    return view('welcome', compact('posts'));
+}
 
     public function accountEdit()
 {
@@ -47,14 +84,23 @@ public function accountEditConf(Request $request)
     $request->validate([
         'name' => 'required',
         'email' => 'required|email',
+        'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
+
+    $iconPath = null;
+
+    if ($request->hasFile('icon')) {
+        $iconPath = $request->file('icon')->store('icons', 'public');
+    }
 
     return view('account_edit_conf', [
         'name' => $request->name,
         'email' => $request->email,
-        'icon' => $request->file('icon'),
+        'icon' => $iconPath,
     ]);
 }
+
+
 public function accountUpdate(Request $request)
 {
     $user = auth()->user();
@@ -66,6 +112,11 @@ public function accountUpdate(Request $request)
 
     $user->name = $request->name;
     $user->email = $request->email;
+
+    // アイコンが選択されていた場合
+    if ($request->icon) {
+        $user->icon = $request->icon;
+    }
 
     $user->save();
 
@@ -194,6 +245,37 @@ public function createPost()
 
 public function confirmPost(Request $request)
 {
+    $request->validate([
+        'title' => 'required|string|max:50',
+        'address' => 'required',
+        'price' => 'required|numeric',
+        'reserve_date' => 'required',
+        'max_people' => 'required|integer',
+        'content' => 'required|string|max:500',
+    ], [
+        'title.required' => 'タイトルを入力してください。',
+        'title.max' => 'タイトルは50文字以内で入力してください。',
+
+        'address.required' => '住所を入力してください。',
+
+        'price.required' => '金額を入力してください。',
+        'price.numeric' => '金額は数値で入力してください。',
+
+        'reserve_date.required' => '予約可能日を入力してください。',
+
+        'max_people.required' => '予約可能人数を入力してください。',
+        'max_people.integer' => '予約可能人数は数値で入力してください。',
+
+        'content.required' => '内容を入力してください。',
+        'content.max' => '内容は500文字以内で入力してください。',
+    ]);
+
+    $imagePath = null;
+
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('posts', 'public');
+    }
+
     return view('create_post_conf', [
         'title' => $request->title,
         'address' => $request->address,
@@ -201,10 +283,9 @@ public function confirmPost(Request $request)
         'reserve_date' => $request->reserve_date,
         'max_people' => $request->max_people,
         'content' => $request->content,
+        'image_path' => $imagePath,
     ]);
 }
-
-
 
 public function storePost(Request $request)
 {
@@ -219,17 +300,12 @@ public function storePost(Request $request)
     $post->reserve_date = $request->reserve_date;
     $post->del_flg = 0;
 
-    if ($request->hasFile('image')) {
-        $image = $request->file('image');
-        $path = $image->store('images', 'public');
-        $post->image_path = $path;
-    }
+    $post->image_path = $request->image_path;
 
     $post->save();
 
     return redirect()->route('inn_main');
 }
-
     public function post($id)
 {
     $post = Post::findOrFail($id);
@@ -251,7 +327,12 @@ public function innPost($id)
     ]);
 }
 
+public function booking($id)
+{
+    $post = Post::findOrFail($id);
 
+    return view('booking', compact('post'));
+}
 
 public function bookingConfirm(Request $request, $id)
 {
@@ -322,7 +403,7 @@ public function mybookingList()
     return view('mybooking_list', compact('bookings'));
 }
 
-public function bookingConf($id)
+public function mybookingConf($id)
 {
     $booking = Booking::with('post')
         ->where('id', $id)
@@ -350,6 +431,64 @@ public function deleteMybookingPost($id)
         ->firstOrFail();
 
     $booking->delete();
+
+    return redirect()->route('mybooking_list');
+}
+public function mybookingEdit($id)
+{
+    $booking = Booking::with('post')
+        ->where('id', $id)
+        ->where('user_id', auth()->id())
+        ->where('del_flg', 0)
+        ->firstOrFail();
+
+    return view('mybooking_edit', compact('booking'));
+}
+
+public function mybookingEditConf(Request $request, $id)
+{
+    $booking = Booking::with('post')
+        ->where('id', $id)
+        ->where('user_id', auth()->id())
+        ->where('del_flg', 0)
+        ->firstOrFail();
+
+    $request->validate([
+        'name' => 'required',
+        'tel' => 'required',
+        'checkin_date' => 'required|date',
+        'checkout_date' => 'required|date|after:checkin_date',
+        'booking_people' => 'required|integer|min:1',
+    ]);
+
+    $data = $request->only([
+        'name',
+        'tel',
+        'checkin_date',
+        'checkout_date',
+        'booking_people',
+    ]);
+
+    return view('mybooking_edit_conf', [
+    'booking' => $booking,
+    'data' => $data,
+    ]);
+}
+
+public function mybookingUpdate(Request $request, $id)
+{
+    $booking = Booking::where('id', $id)
+        ->where('user_id', auth()->id())
+        ->where('del_flg', 0)
+        ->firstOrFail();
+
+    $booking->update([
+        'name' => $request->name,
+        'tel' => $request->tel,
+        'checkin_date' => $request->checkin_date,
+        'checkout_date' => $request->checkout_date,
+        'booking_people' => $request->booking_people,
+    ]);
 
     return redirect()->route('mybooking_list');
 }
@@ -469,5 +608,82 @@ public function deletePost($id)
     $post->delete();
 
     return redirect()->route('inn_main');
+}
+
+public function adminMain()
+{
+    return view('admin_main');
+}
+
+public function userList()
+{
+    // 一般ユーザー
+    $generalUsers = User::where('role', 0)
+        ->where('del_flg', 0)
+        ->withCount('reports')
+        ->orderByDesc('reports_count')
+        ->get();
+
+    // 旅館運営ユーザー
+    $innUsers = User::where('role', 1)
+        ->where('del_flg', 0)
+        ->withCount([
+            'posts as deleted_posts_count' => function ($query) {
+                $query->where('del_flg', 1);
+            }
+        ])
+        ->orderByDesc('deleted_posts_count')
+        ->get();
+
+    return view('user_list', compact('generalUsers', 'innUsers'));
+}
+
+public function postList()
+{
+    $posts = Post::with('user')
+        ->withCount('reports')
+        ->where('del_flg', 0)
+        ->orderByDesc('reports_count')
+        ->get();
+
+    return view('post_list', compact('posts'));
+}
+public function deleteUser($id)
+{
+    $user = User::findOrFail($id);
+
+    $reports = Report::where('user_id', $id)->get();
+
+    return view('delete_user', compact('user', 'reports'));
+}
+
+public function deleteUserPost($id)
+{
+    $user = User::findOrFail($id);
+
+    $user->del_flg = 1;
+    $user->save();
+
+    return redirect()->route('user_list');
+}
+
+public function deletePostPage($id)
+{
+    $post = Post::findOrFail($id);
+
+    $reports = Report::where('post_id', $id)->get();
+
+    return view('delete_post', compact('post', 'reports'));
+}
+
+public function deletePostPost($id)
+{
+    $post = Post::findOrFail($id);
+
+    // 物理削除せず、削除フラグを1にする
+    $post->del_flg = 1;
+    $post->save();
+
+    return redirect()->route('post_list');
 }
 }

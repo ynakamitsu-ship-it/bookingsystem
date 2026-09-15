@@ -21,11 +21,20 @@
             @csrf
 
             {{-- ① アイコン --}}
-            <div class="mb-4 text-center">
-                <label class="form-label d-block">アイコン</label>
+            <div class="mb-4">
+    <label class="form-label">アイコン</label>
 
-                <input type="file" name="icon" class="form-control">
-            </div>
+    @if(auth()->user()->icon)
+        <div class="mb-2">
+            <img src="{{ asset('storage/' . auth()->user()->icon) }}"
+                 alt="現在のアイコン"
+                 style="width: 100px; height: 100px; object-fit: cover;"
+                 class="rounded-circle">
+        </div>
+    @endif
+
+    <input type="file" name="icon" class="form-control">
+</div>
 
             {{-- ② ユーザ名 --}}
             <div class="mb-4">

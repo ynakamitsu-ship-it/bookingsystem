@@ -14,9 +14,17 @@ use App\Http\Controllers\Auth\RegisterController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'top'])->name('top');
+Route::get('/error', function () {return view('error');})->name('error');
+
+Route::post('/register/confirm', [RegisterController::class, 'registerConfirm'])
+    ->name('register.confirm');
+
+    Route::get('/signup/complete', function () {
+    return view('auth.signup_comp');
+})->name('signup.complete');
+
+
 
 Route::get('/password/reset/send-complete', function () {
     return view('auth.passwords.send_complete');
@@ -33,6 +41,13 @@ Route::group(['middleware' => 'auth'], function() {
 });
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/inn_main', [HomeController::class, 'innMain'])->name('inn_main');
+Route::get('/admin_main', [HomeController::class, 'adminMain']) ->name('admin_main');
+Route::get('/user_list', [HomeController::class, 'userList'])->name('user_list');
+Route::get('/post_list', [HomeController::class, 'postList'])->name('post_list');
+Route::get('/delete_user/{id}', [HomeController::class, 'deleteUser'])->name('delete_user');
+Route::post('/delete_user/{id}', [HomeController::class, 'deleteUserPost'])->name('delete_user.post');
+Route::get('/delete_post/{id}', [HomeController::class, 'deletePostPage']) ->name('delete_post');
+Route::post('/delete_post/{id}', [HomeController::class, 'deletePostPost'])->name('delete_post.post');
 Route::get('/mypage', [HomeController::class, 'mypage'])->name('mypage');
 Route::get('/general_mypage', function () { return view('general_mypage');})->name('general_mypage');
 Route::get('/account_edit', [HomeController::class, 'accountEdit'])->name('account_edit');
@@ -49,9 +64,15 @@ Route::post('/inn_delete_account', [HomeController::class, 'innDeleteAccountPost
 Route::get('/innbooking_list', [HomeController::class, 'innBookingList'])->name('innbooking_list');
 Route::get('/innbooking/{id}/conf', [HomeController::class, 'innBookingConf'])->name('innbooking_conf');
 Route::get('/store/register', function () { return view('auth.store_register');})->name('store.register');
+Route::post('/store/register/confirm', [RegisterController::class, 'storeRegisterConfirm'])->name('store-register.confirm');
 Route::post('/store/register', [RegisterController::class, 'storeRegister'])->name('store-register.store');
+Route::get('/store/register/complete', function () {return view('auth.store_register_comp');})->name('store-register.complete');
 Route::get('/account_edit', function () { return view('account_edit');})->name('account_edit');
 Route::get('/mybooking', function () {return view('mybooking_list');})->name('mybooking_list');
+Route::get('/mybooking/{id}/conf', [HomeController::class, 'mybookingConf'])->name('mybooking_conf');
+Route::get('/mybooking/{id}/edit', [HomeController::class, 'mybookingEdit'])->name('mybooking_edit');
+Route::post('/mybooking/{id}/edit/conf', [HomeController::class, 'mybookingEditConf']) ->name('mybooking_edit_conf');
+Route::post('/mybooking/{id}/update', [HomeController::class, 'mybookingUpdate']) ->name('mybooking_update');
 Route::get('/booking/{id}/delete', [HomeController::class, 'deleteMybooking'])->name('booking.delete');
 Route::post('/booking/{id}/delete', [HomeController::class, 'deleteMybookingPost'])->name('booking.delete.post');
 Route::get('/bookmark_list', [HomeController::class, 'bookmarkList'])->name('bookmark_list');
@@ -63,7 +84,7 @@ Route::get('/post/{id}', [HomeController::class, 'post'])->name('post');
 Route::get('/inn/post/{id}', [HomeController::class, 'innPost'])->name('inn_post');
 Route::post('/post/{id}/bookmark', [HomeController::class, 'bookmark'])->name('bookmark');
 Route::get('/booking/{id}', [HomeController::class, 'booking']);
-Route::get('/booking/{id}/conf', [HomeController::class, 'bookingConf'])->name('booking_conf');
+Route::post('/booking/{id}/conf', [HomeController::class, 'bookingConfirm'])->name('booking_conf');
 Route::post('/booking/{id}/reserve', [HomeController::class, 'reserve']);
 Route::get('/booking_comp', function () {return view('booking_comp');});
 Route::delete('/post/{id}', [HomeController::class, 'deletePost'])->name('post_delete');

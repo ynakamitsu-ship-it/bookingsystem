@@ -30,10 +30,25 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
 {
+
+ // 管理者
+    if ($user->role == 2) {
+        return redirect('/admin_main');
+    }
+
+
     if ($user->role == 1) {
         return redirect('/inn_main');
     }
+     // 利用停止ユーザー
+    if ($user->del_flg == 1) {
+        auth()->logout();
 
+        return redirect()->route('error');
+    }
+
+
+    
     return redirect('/home');
 }
 

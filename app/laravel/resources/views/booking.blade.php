@@ -6,7 +6,7 @@
 
     <h1>宿泊者情報</h1>
 
-    <form action="{{ url('/booking/' . $post->id . '/confirm') }}" method="POST">
+    <form action="{{ url('/booking/' . $post->id . '/conf') }}" method="POST">
 
         @csrf
 

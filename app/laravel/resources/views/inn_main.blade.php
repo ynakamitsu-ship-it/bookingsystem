@@ -12,7 +12,7 @@
     {{-- 新規投稿ボタン --}}
     <div class="text-center mb-4">
     <a href="{{ route('create_post') }}" class="btn btn-outline-primary px-5">
-        ① 新規投稿
+        新規投稿
     </a>
 </div>
     </div>

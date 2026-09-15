@@ -68,41 +68,45 @@
     {{-- 旅館一覧 --}}
     @foreach ($posts as $post)
 
-        <div class="card mb-3">
+    <div class="card mb-3">
+        <div class="row align-items-center">
 
-            <div class="row">
+            {{-- 画像 --}}
+            <div class="col-md-3 text-center">
+                @if ($post->image_path)
+                    <img src="{{ asset('storage/' . $post->image_path) }}"
+                         class="img-fluid"
+                         alt="{{ $post->title }}">
+                @else
+                    <p>画像なし</p>
+                @endif
+            </div>
 
-                {{-- 画像 --}}
-                <div class="col-md-4">
-                    @if ($post->image_path)
-                        <img src="{{ asset('storage/' . $post->image_path) }}"
-                             class="img-fluid"
-                             alt="{{ $post->title }}">
-                    @else
-                        <p>画像なし</p>
-                    @endif
-                </div>
+            {{-- 旅館情報 --}}
+            <div class="col-md-7">
+                <h2>{{ $post->title }}</h2>
 
-                {{-- 旅館情報 --}}
-                <div class="col-md-8">
+                <p>店舗名：{{ $post->title }}</p>
 
-                    <h2>{{ $post->title }}</h2>
+                <p>住所：{{ $post->address }}</p>
 
-                    <p>店舗名：{{ $post->title }}</p>
+                <p>金額：{{ number_format($post->price) }}円</p>
 
-                    <p>住所：{{ $post->address }}</p>
+                <p>予約可能日：{{ $post->reserve_date }}</p>
+            </div>
 
-                    <a href="{{ url('/post/' . $post->id) }}" class="btn btn-primary">
+            {{-- 詳細ボタン --}}
+            <div class="col-md-2 text-center">
+                <a href="{{ url('/post/' . $post->id) }}"
+                   class="btn btn-primary">
                     詳細
-                    </a>
-
-                </div>
-
+                </a>
             </div>
 
         </div>
+    </div>
 
-    @endforeach
+@endforeach
 
 </div>
 

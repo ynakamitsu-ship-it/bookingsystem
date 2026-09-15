@@ -5,7 +5,7 @@
 <div class="container py-4">
 
     {{-- ページタイトル --}}
-    <h1 class="mb-4">一般ユーザーマイページ</h1>
+    <h1 class="mb-4">マイページ</h1>
 
     {{-- ユーザー情報 --}}
     <div class="card mb-4">
@@ -15,11 +15,20 @@
 
                 {{-- アイコン --}}
                 <div class="col-md-3 text-center">
-                    <div class="border rounded-circle mx-auto"
-                         style="width: 100px; height: 100px;">
-                        アイコン
-                    </div>
-                </div>
+
+                         @if (auth()->user()->icon)
+                        <img src="{{ asset('storage/' . auth()->user()->icon) }}"
+                            alt="アイコン"
+                            class="rounded-circle"
+                            style="width: 100px; height: 100px; object-fit: cover;">
+                     @else
+                            <div class="border rounded-circle mx-auto d-flex align-items-center justify-content-center"
+                          style="width: 100px; height: 100px;">
+                             アイコン
+                         </div>
+                         @endif
+
+                            </div>
 
                 {{-- ユーザー名 --}}
                 <div class="col-md-9">
@@ -70,6 +79,12 @@
                 </div>
             </div>
         </div>
+
+        <div class="text-center mt-4">
+    <a href="{{ route('home') }}" class="btn btn-secondary">
+        ホームへ戻る
+    </a>
+</div>
 
     </div>
 

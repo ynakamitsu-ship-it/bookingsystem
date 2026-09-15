@@ -107,6 +107,7 @@
             <input type="hidden" name="title" value="{{ $title }}">
             <input type="hidden" name="address" value="{{ $address }}">
             <input type="hidden" name="price" value="{{ $price }}">
+            <input type="hidden" name="imagePath" value="{{ $image_path }}">
             <input type="hidden" name="reserve_date" value="{{ $reserve_date }}">
             <input type="hidden" name="max_people" value="{{ $max_people }}">
             <input type="hidden" name="content" value="{{ $content }}">

@@ -7,7 +7,7 @@
     <h1 class="text-center mb-5">予約一覧</h1>
     <div class="text-center mt-4 mb-4">
     <a href="{{ route('general_mypage') }}" class="btn btn-secondary">
-        ⑨戻る
+        戻る
     </a>
 </div>
 
@@ -56,12 +56,12 @@
                     {{-- 確認ボタン --}}
                     <div class="col-md-3 text-center">
 
-                        <a
-                            href="{{ url('/booking/' . $booking->id . '/conf') }}"
-                            class="btn btn-primary"
+                       <a
+                            href="{{ route('mybooking_conf', $booking->id) }}"
+                             class="btn btn-primary"
                         >
-                            ①確認
-                        </a>
+                            確認
+                            </a>
 
                     </div>
 

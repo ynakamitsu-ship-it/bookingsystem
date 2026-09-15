@@ -54,6 +54,7 @@
 
                 <input type="hidden" name="name" value="{{ $name }}">
                 <input type="hidden" name="email" value="{{ $email }}">
+                <input type="hidden" name="icon" value="{{ $icon }}">
 
                 <button type="submit" class="btn btn-primary">
                     変更を確定

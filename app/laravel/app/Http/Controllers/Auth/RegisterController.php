@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
@@ -69,7 +70,7 @@ class RegisterController extends Controller
         ]);
     }
 
-    public function storeRegister(Request $request)
+  public function storeRegisterConfirm(Request $request)
 {
     $request->validate([
         'store_name' => 'required|string|max:255',
@@ -77,14 +78,44 @@ class RegisterController extends Controller
         'password' => 'required|confirmed|min:8',
     ]);
 
-    User::create([
+    return view('auth.store_register_conf', [
+        'store_name' => $request->store_name,
+        'email' => $request->email,
+        'password' => $request->password,
+    ]);
+}
+
+
+public function storeRegister(Request $request)
+{
+    $user = User::create([
         'name' => $request->store_name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
         'role' => 1,
     ]);
 
-    return redirect('/login')->with('success', '店舗アカウントを登録しました');
+    Auth::login($user);
+
+    return redirect()->route('store-register.complete');
 }
 
+public function registerConfirm(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|max:255',
+        'password' => 'required|confirmed|min:8',
+    ]);
+
+    return view('auth.signup_conf', [
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => $request->password,
+    ]);
+}
+protected function registered(Request $request, $user)
+{
+    return redirect()->route('signup.complete');
+}
 }

@@ -11,23 +11,30 @@
 <form method="POST" action="{{ route('post.confirm') }}" enctype="multipart/form-data">
     @csrf
         {{-- ① タイトル --}}
-        <div class="mb-3">
-            <label for="title" class="form-label">
-                ① タイトル
-            </label>
+       <div class="mb-3">
+    <label for="title" class="form-label">
+        タイトル
+    </label>
 
-            <input
-                type="text"
-                id="title"
-                name="title"
-                class="form-control"
-            >
+    <input
+        type="text"
+        id="title"
+        name="title"
+        class="form-control"
+        value="{{ old('title') }}"
+    >
+
+    @error('title')
+        <div class="text-danger">
+            {{ $message }}
         </div>
+    @enderror
+</div>
 
         {{-- ② 画像 --}}
         <div class="mb-3">
             <label for="image" class="form-label">
-                ② 画像
+                画像
             </label>
 
             <input
@@ -41,7 +48,7 @@
         {{-- 住所 --}}
 <div class="mb-3">
     <label for="address" class="form-label">
-        ③ 住所
+        住所
     </label>
 
     <input
@@ -49,64 +56,98 @@
         id="address"
         name="address"
         class="form-control"
+        value="{{ old('address') }}"
     >
+
+    @error('address')
+        <div class="text-danger">
+            {{ $message }}
+        </div>
+    @enderror
 </div>
 
         {{-- ③ 金額 --}}
         <div class="mb-3">
-            <label for="price" class="form-label">
-                ③ 金額
-            </label>
+    <label for="price" class="form-label">
+        金額
+    </label>
 
-            <input
-                type="text"
-                id="price"
-                name="price"
-                class="form-control"
-            >
+    <input
+        type="text"
+        id="price"
+        name="price"
+        class="form-control"
+        value="{{ old('price') }}"
+    >
+
+    @error('price')
+        <div class="text-danger">
+            {{ $message }}
         </div>
+    @enderror
+</div>
 
         {{-- ④ 予約可能日 --}}
         <div class="mb-3">
-            <label for="reserve_date" class="form-label">
-                ④ 予約可能日
-            </label>
+    <label for="reserve_date" class="form-label">
+        予約可能日
+    </label>
 
-            <input
-                type="date"
-                id="reserve_date"
-                name="reserve_date"
-                class="form-control"
-            >
+    <input
+        type="date"
+        id="reserve_date"
+        name="reserve_date"
+        class="form-control"
+        value="{{ old('reserve_date') }}"
+    >
+
+    @error('reserve_date')
+        <div class="text-danger">
+            {{ $message }}
         </div>
+    @enderror
+</div>
 
         {{-- ⑤ 予約可能人数 --}}
         <div class="mb-3">
-            <label for="max_people" class="form-label">
-                ⑤ 予約可能人数
-            </label>
+    <label for="max_people" class="form-label">
+        予約可能人数
+    </label>
 
-            <input
-                type="number"
-                id="max_people"
-                name="max_people"
-                class="form-control"
-            >
+    <input
+        type="number"
+        id="max_people"
+        name="max_people"
+        class="form-control"
+        value="{{ old('max_people') }}"
+    >
+
+    @error('max_people')
+        <div class="text-danger">
+            {{ $message }}
         </div>
+    @enderror
+</div>
 
         {{-- ⑥ 内容 --}}
         <div class="mb-4">
-            <label for="content" class="form-label">
-                ⑥ 内容
-            </label>
+    <label for="content" class="form-label">
+        内容
+    </label>
 
-            <textarea
-                id="content"
-                name="content"
-                class="form-control"
-                rows="5"
-            ></textarea>
+    <textarea
+        id="content"
+        name="content"
+        class="form-control"
+        rows="5"
+    >{{ old('content') }}</textarea>
+
+    @error('content')
+        <div class="text-danger">
+            {{ $message }}
         </div>
+    @enderror
+</div>
 
         {{-- ⑦ 戻る・⑧ 投稿内容確認 --}}
         <div class="d-flex justify-content-center gap-5">
@@ -115,14 +156,14 @@
                 href="{{ route('inn_main') }}"
                 class="btn btn-outline-secondary px-5"
             >
-                ⑦ 戻る
+                戻る
             </a>
 
             <button
                 type="submit"
                 class="btn btn-outline-primary px-5"
             >
-                ⑧ 投稿内容確認
+                投稿内容確認
             </button>
 
         </div>

@@ -1,7 +1,8 @@
 <?php
 
 namespace App\Models;
-
+use App\Models\User;
+use App\Models\Report;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,5 +37,11 @@ class Post extends Model
     {
         return $this->hasMany(Bookmark::class);
     }
+
+    public function reports()
+{
+    return $this->hasMany(Report::class);
+}
+
 }
 

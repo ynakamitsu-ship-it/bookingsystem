@@ -31,8 +31,8 @@
                         </h2>
 
                         <a href="{{ route('home') }}"
-                           class="btn btn-outline-secondary">
-                            ①メインページへ
+                           class="btn btn-primary">
+                            メインページへ
                         </a>
 
                     </div>

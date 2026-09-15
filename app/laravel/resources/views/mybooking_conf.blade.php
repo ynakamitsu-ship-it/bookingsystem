@@ -16,7 +16,7 @@
 
             <div class="row mb-3">
                 <div class="col-md-4 fw-bold">
-                    ①名前
+                    名前
                 </div>
                 <div class="col-md-8">
                     {{ $booking->name }}
@@ -25,7 +25,7 @@
 
             <div class="row mb-3">
                 <div class="col-md-4 fw-bold">
-                    ②電話番号
+                    電話番号
                 </div>
                 <div class="col-md-8">
                     {{ $booking->tel }}
@@ -34,7 +34,7 @@
 
             <div class="row mb-3">
                 <div class="col-md-4 fw-bold">
-                    ③チェックイン日
+                    チェックイン日
                 </div>
                 <div class="col-md-8">
                     {{ $booking->checkin_date }}
@@ -43,7 +43,7 @@
 
             <div class="row mb-3">
                 <div class="col-md-4 fw-bold">
-                    ④チェックアウト日
+                    チェックアウト日
                 </div>
                 <div class="col-md-8">
                     {{ $booking->checkout_date }}
@@ -52,7 +52,7 @@
 
             <div class="row mb-4">
                 <div class="col-md-4 fw-bold">
-                    ⑤予約人数
+                    予約人数
                 </div>
                 <div class="col-md-8">
                     {{ $booking->booking_people }}人
@@ -62,18 +62,18 @@
             <hr>
 
             <div class="mb-3">
-                <h3>⑥{{ $booking->post->title }}</h3>
+                <h3>{{ $booking->post->title }}</h3>
             </div>
 
             <div class="mb-3">
-                <strong>⑦金額</strong>
+                <strong>金額</strong>
                 <div>
                     {{ $booking->post->price }}円
                 </div>
             </div>
 
             <div class="border rounded p-4">
-                <strong>⑧内容</strong>
+                <strong>内容</strong>
 
                 <p class="mt-3 mb-0">
                     {{ $booking->post->content }}
@@ -88,13 +88,18 @@
 
                 <a href="{{ url('/mybooking') }}"
                    class="btn btn-secondary">
-                    ⑨戻る
+                    戻る
                 </a>
 
                 <a href="{{ route('booking.delete', $booking->id) }}"
                     class="btn btn-danger">
-                        ⑩キャンセル
+                        キャンセル
                 </a>
+
+                 <a href="{{ route('mybooking_edit', $booking->id) }}"
+                     class="btn btn-secondary me-3">
+                     編集
+                 </a>
 
             </div>
 

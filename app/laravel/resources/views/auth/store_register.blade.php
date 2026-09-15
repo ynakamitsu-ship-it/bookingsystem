@@ -14,7 +14,7 @@
 
                 <div class="card-body">
 
-                    <form method="POST" action="{{ route('store.register') }}">
+                   <form method="POST" action="{{ route('store-register.confirm') }}">
                         @csrf
 
                         {{-- 店舗名 --}}
