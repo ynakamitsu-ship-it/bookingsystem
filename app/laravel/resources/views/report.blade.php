@@ -34,6 +34,9 @@
                         rows="5"
                         placeholder="通報理由を入力してください"
                     ></textarea>
+                    @error('reason')
+    <div class="text-danger">{{ $message }}</div>
+@enderror
                 </div>
 
                 <div class="d-flex justify-content-center gap-3">

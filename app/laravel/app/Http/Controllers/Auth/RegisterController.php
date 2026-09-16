@@ -74,8 +74,20 @@ class RegisterController extends Controller
 {
     $request->validate([
         'store_name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email',
+        'email' => 'required|email|max:255|unique:users,email',
         'password' => 'required|confirmed|min:8',
+    ], [
+        'store_name.required' => '店舗名を入力してください。',
+        'store_name.max' => '店舗名は255文字以内で入力してください。',
+
+        'email.required' => 'メールアドレスを入力してください。',
+        'email.email' => '正しいメールアドレスを入力してください。',
+        'email.max' => 'メールアドレスは255文字以内で入力してください。',
+        'email.unique' => 'このメールアドレスはすでに登録されています。',
+
+        'password.required' => 'パスワードを入力してください。',
+        'password.min' => 'パスワードは8文字以上で入力してください。',
+        'password.confirmed' => 'パスワード確認が一致していません。',
     ]);
 
     return view('auth.store_register_conf', [
@@ -104,8 +116,20 @@ public function registerConfirm(Request $request)
 {
     $request->validate([
         'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
+        'email' => 'required|email|max:255|unique:users,email',
         'password' => 'required|confirmed|min:8',
+    ], [
+        'name.required' => '名前を入力してください。',
+        'name.max' => '名前は255文字以内で入力してください。',
+
+        'email.required' => 'メールアドレスを入力してください。',
+        'email.email' => '正しいメールアドレスを入力してください。',
+        'email.max' => 'メールアドレスは255文字以内で入力してください。',
+        'email.unique' => 'このメールアドレスはすでに登録されています。',
+
+        'password.required' => 'パスワードを入力してください。',
+        'password.min' => 'パスワードは8文字以上で入力してください。',
+        'password.confirmed' => 'パスワード確認が一致していません。',
     ]);
 
     return view('auth.signup_conf', [

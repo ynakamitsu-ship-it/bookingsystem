@@ -82,10 +82,17 @@ public function deleteAccount()
 public function accountEditConf(Request $request)
 {
     $request->validate([
-        'name' => 'required',
-        'email' => 'required|email',
-        'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
+    'name' => 'required',
+    'email' => 'required|email',
+    'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+], [
+    'name.required' => 'ユーザ名を入力してください。',
+    'email.required' => 'メールアドレスを入力してください。',
+    'email.email' => 'メールアドレスの形式が正しくありません。',
+    'icon.image' => '画像ファイルを選択してください。',
+    'icon.mimes' => 'JPEG、PNG、JPG、GIF形式の画像を選択してください。',
+    'icon.max' => '画像のサイズは2MB以内にしてください。',
+]);
 
     $iconPath = null;
 
@@ -141,11 +148,32 @@ public function innAccountEditConf(Request $request)
 {
     $user = auth()->user();
 
+    $request->validate([
+        'name' => 'required',
+        'email' => 'required|email',
+        'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ], [
+        'name.required' => 'ユーザ名を入力してください。',
+        'email.required' => 'メールアドレスを入力してください。',
+        'email.email' => 'メールアドレスの形式が正しくありません。',
+        'icon.image' => '画像ファイルを選択してください。',
+        'icon.mimes' => 'JPEG、PNG、JPG、GIF形式の画像を選択してください。',
+        'icon.max' => '画像のサイズは2MB以内にしてください。',
+    ]);
+
+    // アイコンを選択していた場合、一時的に保存
+    $iconPath = null;
+
+    if ($request->hasFile('icon')) {
+        $iconPath = $request->file('icon')->store('icons', 'public');
+    }
+
     return view('inn_account_edit_conf', [
         'user' => $user,
         'name' => $request->name,
         'email' => $request->email,
         'icon' => $request->file('icon'),
+        'iconPath' => $iconPath,
     ]);
 }
 
@@ -155,6 +183,11 @@ public function innAccountUpdate(Request $request)
 
     $user->name = $request->name;
     $user->email = $request->email;
+
+    // 確認画面から渡されたアイコンを保存
+    if ($request->icon_path) {
+        $user->icon = $request->icon_path;
+    }
 
     $user->save();
 
@@ -229,12 +262,30 @@ public function innBookingList()
         return view('home', compact('posts'));
     }
 
-    public function innMain()
+   public function innMain(Request $request)
 {
     $posts = Post::where('user_id', auth()->id())
         ->orderBy('created_at', 'desc')
-        ->get();
+        ->paginate(5);
 
+    // 無限スクロールからのAjax通信の場合
+    if ($request->ajax()) {
+
+        $html = '';
+
+        foreach ($posts as $post) {
+            $html .= view('partials.inn_post_card', [
+                'post' => $post
+            ])->render();
+        }
+
+        return response()->json([
+            'html' => $html,
+            'hasMore' => $posts->hasMorePages(),
+        ]);
+    }
+
+    // 最初にページを開いた場合
     return view('inn_main', compact('posts'));
 }
 
@@ -336,14 +387,41 @@ public function booking($id)
 
 public function bookingConfirm(Request $request, $id)
 {
-      $post = Post::findOrFail($id);
+    $post = Post::findOrFail($id);
+
+    $request->validate([
+        'name' => 'required|max:255',
+        'tel' => ['required', 'regex:/^[0-9-]+$/'],
+        'checkin_date' => 'required|date|after_or_equal:today',
+        'checkout_date' => 'required|date|after:checkin_date',
+        'booking_people' => 'required|integer|min:1|max:' . $post->max_people,
+    ], [
+        'name.required' => '名前を入力してください。',
+        'name.max' => '名前は255文字以内で入力してください。',
+
+        'tel.required' => '電話番号を入力してください。',
+        'tel.regex' => '電話番号は数字とハイフンで入力してください。',
+
+        'checkin_date.required' => 'チェックイン日を選択してください。',
+        'checkin_date.date' => '正しいチェックイン日を選択してください。',
+        'checkin_date.after_or_equal' => 'チェックイン日は今日以降の日付を選択してください。',
+
+        'checkout_date.required' => 'チェックアウト日を選択してください。',
+        'checkout_date.date' => '正しいチェックアウト日を選択してください。',
+        'checkout_date.after' => 'チェックアウト日はチェックイン日より後の日付を選択してください。',
+
+        'booking_people.required' => '予約人数を入力してください。',
+        'booking_people.integer' => '予約人数は数字で入力してください。',
+        'booking_people.min' => '予約人数は1人以上で入力してください。',
+        'booking_people.max' => '予約可能人数を超えています。',
+    ]);
 
     $booking = [
         'name' => $request->name,
-        'phone' => $request->phone,
-        'checkin' => $request->checkin,
-        'checkout' => $request->checkout,
-        'people' => $request->people,
+        'tel' => $request->tel,
+        'checkin_date' => $request->checkin_date,
+        'checkout_date' => $request->checkout_date,
+        'booking_people' => $request->booking_people,
     ];
 
     return view('booking_confirm', compact('post', 'booking'));
@@ -360,23 +438,24 @@ public function reserve(Request $request, $id)
 {
     $post = Post::findOrFail($id);
 
+    // 同じ旅館をすでに予約していないか確認
     $exists = Booking::where('user_id', auth()->id())
-    ->where('post_id', $post->id)
-    ->where('del_flg', 0)
-    ->exists();
+        ->where('post_id', $post->id)
+        ->where('del_flg', 0)
+        ->exists();
 
-if ($exists) {
-    return back()->with('error', 'この旅館はすでに予約済みです。');
-}
+    if ($exists) {
+        return back()->with('error', 'この旅館はすでに予約済みです。');
+    }
 
     Booking::create([
         'user_id' => auth()->id(),
         'post_id' => $post->id,
         'name' => $request->name,
-        'tel' => $request->phone,
-        'checkin_date' => $request->checkin,
-        'checkout_date' => $request->checkout,
-        'booking_people' => $request->people,
+        'tel' => $request->tel,
+        'checkin_date' => $request->checkin_date,
+        'checkout_date' => $request->checkout_date,
+        'booking_people' => $request->booking_people,
         'del_flg' => 0,
     ]);
 
@@ -508,6 +587,21 @@ public function report($id)
 
     return view('report', compact('post'));
 }
+public function reportConf(Request $request, $id)
+{
+    $post = Post::findOrFail($id);
+
+    $request->validate([
+        'reason' => 'required',
+    ], [
+        'reason.required' => '通報理由を入力してください。',
+    ]);
+
+    return view('report_conf', [
+        'reason' => $request->reason,
+        'post' => $post,
+    ]);
+}
 
 public function reportComplete(Request $request, $id)
 {
@@ -533,13 +627,17 @@ public function innReport($id)
 
 public function innReportConf(Request $request, $id)
 {
-    $booking = Booking::with('user')->findOrFail($id);
+    $booking = Booking::findOrFail($id);
 
-    $reason = $request->input('reason');
+    $request->validate([
+        'reason' => 'required',
+    ], [
+        'reason.required' => '通報理由を入力してください。',
+    ]);
 
     return view('inn_report_conf', [
         'booking' => $booking,
-        'reason' => $reason
+        'reason' => $request->reason,
     ]);
 }
 
@@ -574,6 +672,31 @@ public function editPostConf(Request $request, $id)
 {
     $post = Post::findOrFail($id);
 
+    $request->validate([
+        'title' => 'required|max:50',
+        'address' => 'required',
+        'price' => 'required|numeric',
+        'reserve_date' => 'required',
+        'max_people' => 'required|numeric',
+        'content' => 'required|max:500',
+    ], [
+        'title.required' => 'タイトルを入力してください。',
+        'title.max' => 'タイトルは50文字以内で入力してください。',
+
+        'address.required' => '住所を入力してください。',
+
+        'price.required' => '金額を入力してください。',
+        'price.numeric' => '金額は数値で入力してください。',
+
+        'reserve_date.required' => '予約可能日を入力してください。',
+
+        'max_people.required' => '予約可能人数を入力してください。',
+        'max_people.numeric' => '予約可能人数は数値で入力してください。',
+
+        'content.required' => '内容を入力してください。',
+        'content.max' => '内容は500文字以内で入力してください。',
+    ]);
+
     return view('edit_post_conf', [
         'post' => $post,
         'title' => $request->title,
@@ -582,8 +705,10 @@ public function editPostConf(Request $request, $id)
         'reserve_date' => $request->reserve_date,
         'max_people' => $request->max_people,
         'content' => $request->content,
+        'address' => $request->address,
     ]);
 }
+
 public function updatePost(Request $request, $id)
 {
     $post = Post::findOrFail($id);

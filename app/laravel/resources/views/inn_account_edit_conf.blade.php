@@ -57,6 +57,10 @@
                 <input type="hidden"
                        name="email"
                        value="{{ $email }}">
+                      
+                       @if($iconPath)
+    <input type="hidden" name="icon_path" value="{{ $iconPath }}">
+@endif
 
                 <button type="submit"
                         class="btn btn-primary">

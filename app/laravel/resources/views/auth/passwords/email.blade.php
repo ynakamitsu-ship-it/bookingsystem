@@ -18,8 +18,9 @@
                 <div class="card-body">
 
                     {{-- メールアドレス入力 --}}
-                    <form method="POST" action="{{ route('password.email') }}">
-
+                    <form method="POST"
+                          action="{{ route('password.email') }}"
+                          novalidate>
                         @csrf
 
                         <div class="row mb-4">
@@ -27,24 +28,24 @@
                             <div class="col-md-6 offset-md-3">
 
                                 <label for="email" class="form-label">
-                                    ①メールアドレス
+                                    メールアドレス
                                 </label>
 
                                 <input
                                     id="email"
-                                    type="email"
+                                    type="text"
                                     class="form-control @error('email') is-invalid @enderror"
                                     name="email"
                                     value="{{ old('email') }}"
-                                    required
                                     autocomplete="email"
                                     autofocus
                                 >
 
+                                {{-- バリデーションエラー --}}
                                 @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
+                                    <div class="text-danger mt-1">
+                                        {{ $message }}
+                                    </div>
                                 @enderror
 
                             </div>
@@ -71,8 +72,9 @@
                         {{-- 送信ボタン --}}
                         <div class="text-center">
 
-                            <button type="submit" class="btn btn-primary px-5">
-                                ②送信
+                            <button type="submit"
+                                    class="btn btn-primary px-5">
+                                送信
                             </button>
 
                         </div>

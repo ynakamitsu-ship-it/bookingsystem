@@ -29,7 +29,7 @@
                                  style="max-width: 100%;
                                         max-height: 240px;">
                         @else
-                            <span>②画像</span>
+                            <span>画像</span>
                         @endif
 
                     </div>
@@ -42,7 +42,7 @@
 
                     {{-- ①タイトル --}}
                     <div class="mb-4">
-                        <h4>① タイトル</h4>
+                        <h4>タイトル</h4>
 
                         <div class="border p-2">
                             {{ $title }}
@@ -53,7 +53,7 @@
                     {{-- ③金額 --}}
                     <div class="mb-3">
                         <div class="border p-2">
-                            ③ 金額：{{ $price }}円
+                            金額：{{ $price }}円
                         </div>
                     </div>
 
@@ -61,7 +61,7 @@
                     {{-- ④予約可能日 --}}
                     <div class="mb-3">
                         <div class="border p-2">
-                            ④ 予約可能日：{{ $reserve_date }}
+                            予約可能日：{{ $reserve_date }}
                         </div>
                     </div>
 
@@ -69,7 +69,7 @@
                     {{-- ⑤予約可能人数 --}}
                     <div class="mb-3">
                         <div class="border p-2">
-                            ⑤ 予約可能人数：{{ $max_people }}人
+                            予約可能人数：{{ $max_people }}人
                         </div>
                     </div>
 
@@ -81,7 +81,7 @@
             {{-- 住所 --}}
             <div class="mt-3 mb-4">
 
-                <h4>⑦ 住所</h4>
+                <h4>住所</h4>
 
                 <div class="border p-3">
                     {{ $address }}
@@ -93,7 +93,7 @@
             {{-- ⑥内容 --}}
             <div class="mb-5">
 
-                <h4>⑥ 内容</h4>
+                <h4>内容</h4>
 
                 <div class="border p-4"
                      style="min-height: 150px;">
@@ -124,14 +124,14 @@
                 <button type="button"
                         class="btn btn-outline-secondary px-5"
                         onclick="history.back()">
-                    ⑧ 戻る
+                    戻る
                 </button>
 
 
                 {{-- ⑨投稿 --}}
                 <button type="submit"
                         class="btn btn-outline-primary px-5">
-                    ⑨ 投稿
+                    投稿
                 </button>
 
             </div>

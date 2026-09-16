@@ -89,8 +89,7 @@ Route::post('/booking/{id}/reserve', [HomeController::class, 'reserve']);
 Route::get('/booking_comp', function () {return view('booking_comp');});
 Route::delete('/post/{id}', [HomeController::class, 'deletePost'])->name('post_delete');
 Route::get('/report/{id}', [HomeController::class, 'report']);
-Route::post('/report/{id}/conf', function ($id) {$post = \App\Models\Post::findOrFail($id);$reason = 
-request('reason');return view('report_conf', ['reason' => $reason,'post' => $post]);})->name('report.conf');
+Route::post('/report/{id}/conf', [HomeController::class, 'reportConf'])->name('report.conf');
 Route::post('/report/{id}/comp', [HomeController::class, 'reportComplete'])->name('report_comp');
 Route::get('/inn/report/{id}', [HomeController::class, 'innReport'])->name('inn_report');
 Route::post('/inn/report/{id}/conf', [HomeController::class, 'innReportConf'])->name('inn_report_conf');

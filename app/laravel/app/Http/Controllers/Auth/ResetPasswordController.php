@@ -4,32 +4,38 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ResetPasswordController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Password Reset Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller is responsible for handling password reset requests
-    | and uses a simple trait to include this behavior. You're free to
-    | explore this trait and override any methods you wish to tweak.
-    |
-    */
-
     use ResetsPasswords;
 
-    /**
-     * Where to redirect users after resetting their password.
-     *
-     * @var string
-     */
     protected $redirectTo = '/password/reset/complete';
 
-     protected function sendResetResponse(Request $request, $response)
+    protected function rules()
+    {
+        return [
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|string|min:8|max:20|confirmed',
+        ];
+    }
+
+    protected function validationErrorMessages()
+    {
+        return [
+            'email.required' => 'メールアドレスを入力してください。',
+            'email.email' => '正しいメールアドレスを入力してください。',
+
+            'password.required' => 'パスワードを入力してください。',
+            'password.min' => 'パスワードは8文字以上で入力してください。',
+            'password.max' => 'パスワードは20文字以内で入力してください。',
+            'password.confirmed' => 'パスワードが一致していません。',
+        ];
+    }
+
+    protected function sendResetResponse(Request $request, $response)
     {
         Auth::logout();
 

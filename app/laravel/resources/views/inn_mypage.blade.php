@@ -20,19 +20,27 @@
         <div class="text-end mb-4">
             <a href="{{ route('inn_account_edit') }}"
                class="btn btn-primary">
-                ① アカウント情報編集
+                アカウント情報編集
             </a>
         </div>
 
         <!-- アイコン・ユーザー名 -->
         <div class="text-center mb-5">
 
-            <p>アイコン</p>
+        
 
-            <h2>
-                {{ $user->name }}
-            </h2>
+@if($user->icon)
+    <img src="{{ asset('storage/' . $user->icon) }}"
+         alt="アイコン"
+         class="rounded-circle mb-3"
+         style="width: 100px; height: 100px; object-fit: cover;">
+@else
+    <p>アイコン未登録</p>
+@endif
 
+<h2>
+    {{ $user->name }}
+</h2>
         </div>
 
         <!-- 予約確認 -->
@@ -40,7 +48,7 @@
 
             <a href="{{ route('innbooking_list') }}"
                class="btn btn-primary">
-                ② 予約確認
+                予約確認
             </a>
 
         </div>

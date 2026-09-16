@@ -12,13 +12,14 @@
     {{-- 予約者情報 --}}
     <div class="row justify-content-center">
 
-        {{-- 左側 --}}
+        {{-- 左側：予約者情報 --}}
         <div class="col-md-4">
 
             <h2 class="text-center mb-4">
                 予約者情報
             </h2>
 
+            {{-- 名前 --}}
             <div class="border rounded p-3 mb-3 text-center">
                 <strong>名前</strong>
                 <div class="mt-2">
@@ -26,38 +27,42 @@
                 </div>
             </div>
 
+            {{-- 電話番号 --}}
             <div class="border rounded p-3 mb-3 text-center">
                 <strong>電話番号</strong>
                 <div class="mt-2">
-                    {{ $booking['phone'] }}
+                    {{ $booking['tel'] }}
                 </div>
             </div>
 
+            {{-- チェックイン日 --}}
             <div class="border rounded p-3 mb-3 text-center">
                 <strong>チェックイン日</strong>
                 <div class="mt-2">
-                    {{ $booking['checkin'] }}
+                    {{ $booking['checkin_date'] }}
                 </div>
             </div>
 
+            {{-- チェックアウト日 --}}
             <div class="border rounded p-3 mb-3 text-center">
                 <strong>チェックアウト日</strong>
                 <div class="mt-2">
-                    {{ $booking['checkout'] }}
+                    {{ $booking['checkout_date'] }}
                 </div>
             </div>
 
+            {{-- 予約人数 --}}
             <div class="border rounded p-3 mb-3 text-center">
                 <strong>予約人数</strong>
                 <div class="mt-2">
-                    {{ $booking['people'] }}
+                    {{ $booking['booking_people'] }}人
                 </div>
             </div>
 
         </div>
 
 
-        {{-- 右側 --}}
+        {{-- 右側：予約内容 --}}
         <div class="col-md-6">
 
             <h2 class="text-center mb-4">
@@ -66,6 +71,7 @@
 
             <div class="border rounded p-4">
 
+                {{-- タイトル --}}
                 <div class="mb-3">
                     <h4 class="mb-1">タイトル</h4>
                     <p class="mb-0">
@@ -73,13 +79,15 @@
                     </p>
                 </div>
 
+                {{-- 金額 --}}
                 <div class="mb-3">
                     <h4 class="mb-1">金額</h4>
                     <p class="mb-0">
-                        {{ $post->price }}
+                        {{ $post->price }}円
                     </p>
                 </div>
 
+                {{-- 内容 --}}
                 <div class="border rounded p-4 mt-3">
                     <p class="text-center mb-0">
                         {{ $post->content }}
@@ -96,34 +104,43 @@
     {{-- 戻る・予約ボタン --}}
     <div class="d-flex justify-content-center gap-4 mt-4">
 
+        {{-- 戻る --}}
         <a href="{{ url('/booking/' . $post->id) }}"
            class="btn btn-secondary">
             戻る
         </a>
 
+
+        {{-- 予約確定 --}}
         <form action="{{ url('/booking/' . $post->id . '/reserve') }}"
               method="POST">
+
             @csrf
 
+            {{-- 名前 --}}
             <input type="hidden"
                    name="name"
                    value="{{ $booking['name'] }}">
 
+            {{-- 電話番号 --}}
             <input type="hidden"
-                   name="phone"
-                   value="{{ $booking['phone'] }}">
+                   name="tel"
+                   value="{{ $booking['tel'] }}">
 
+            {{-- チェックイン日 --}}
             <input type="hidden"
-                   name="checkin"
-                   value="{{ $booking['checkin'] }}">
+                   name="checkin_date"
+                   value="{{ $booking['checkin_date'] }}">
 
+            {{-- チェックアウト日 --}}
             <input type="hidden"
-                   name="checkout"
-                   value="{{ $booking['checkout'] }}">
+                   name="checkout_date"
+                   value="{{ $booking['checkout_date'] }}">
 
+            {{-- 予約人数 --}}
             <input type="hidden"
-                   name="people"
-                   value="{{ $booking['people'] }}">
+                   name="booking_people"
+                   value="{{ $booking['booking_people'] }}">
 
             <button type="submit"
                     class="btn btn-primary">

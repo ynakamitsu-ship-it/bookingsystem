@@ -11,48 +11,36 @@
 
     {{-- 新規投稿ボタン --}}
     <div class="text-center mb-4">
-    <a href="{{ route('create_post') }}" class="btn btn-outline-primary px-5">
-        新規投稿
-    </a>
-</div>
+        <a href="{{ route('create_post') }}"
+           class="btn btn-outline-primary px-5">
+            新規投稿
+        </a>
     </div>
+
 
     {{-- 投稿一覧 --}}
     @if($posts->count() > 0)
 
-        @foreach($posts as $post)
+        {{-- Ajaxで新しい投稿を追加する場所 --}}
+        <div id="post-list">
 
-            <div class="card mb-3">
+            @foreach($posts as $post)
 
-                <div class="card-body">
+                @include('partials.inn_post_card', ['post' => $post])
 
-                    {{-- 旅館名 --}}
-                    <h5 class="card-title">
-                        {{ $post->title }}
-                    </h5>
+            @endforeach
 
-                    {{-- 住所 --}}
-                    <p class="card-text">
-                        {{ $post->address }}
-                    </p>
+        </div>
 
-                    {{-- 予約可能日 --}}
-                    <p class="card-text">
-                        <small class="text-muted">
-                            予約可能日：
-                            {{ $post->reserve_date }}
-                        </small>
-                    </p>
 
-                <a href="{{ route('inn_post', ['id' => $post->id]) }}"
-                                class="btn btn-outline-primary">
-                               投稿詳細
-                </a>
-                </div>
+        {{-- 無限スクロール検知場所 --}}
+        <div id="scroll-sentinel" class="text-center py-3">
 
-            </div>
+            <span id="loading" style="display: none;">
+                読み込み中...
+            </span>
 
-        @endforeach
+        </div>
 
     @else
 
