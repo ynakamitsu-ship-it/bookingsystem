@@ -66,6 +66,7 @@
 
 </form>
     {{-- 旅館一覧 --}}
+    <div id="post-list">
     @foreach ($posts as $post)
 
     <div class="card mb-3">
@@ -107,6 +108,7 @@
     </div>
 
 @endforeach
+</div>
 
 </div>
 

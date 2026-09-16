@@ -26,9 +26,8 @@
 
                     <p class="mb-5">
                         パスワード：
-                        <span>パスワード</span>
+                        <span>{{ $password }}</span>
                     </p>
-
                     <form method="POST" action="{{ route('register') }}">
                         @csrf
 
@@ -38,7 +37,7 @@
                         <input type="hidden" name="password_confirmation" value="{{ $password }}">
 
                         <button type="submit" class="btn btn-primary">
-                            ①登録
+                            登録
                         </button>
                     </form>
 

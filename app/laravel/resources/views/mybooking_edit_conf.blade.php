@@ -18,7 +18,7 @@
 
             <div class="row mb-3">
                 <div class="col-md-4">
-                    ①名前
+                    名前
                 </div>
 
                 <div class="col-md-8">
@@ -28,7 +28,7 @@
 
             <div class="row mb-3">
                 <div class="col-md-4">
-                    ②電話番号
+                    電話番号
                 </div>
 
                 <div class="col-md-8">
@@ -38,7 +38,7 @@
 
             <div class="row mb-3">
                 <div class="col-md-4">
-                    ③チェックイン日
+                    チェックイン日
                 </div>
 
                 <div class="col-md-8">
@@ -48,7 +48,7 @@
 
             <div class="row mb-3">
                 <div class="col-md-4">
-                    ④チェックアウト日
+                    チェックアウト日
                 </div>
 
                 <div class="col-md-8">
@@ -58,7 +58,7 @@
 
             <div class="row mb-4">
                 <div class="col-md-4">
-                    ⑤予約人数
+                    予約人数
                 </div>
 
                 <div class="col-md-8">
@@ -68,16 +68,30 @@
 
             <hr>
 
-            <h3 class="mb-3">
-                ⑥{{ $booking->post->title }}
+             <h3 class="mb-3">
+                {{ $booking->post->title }}
             </h3>
+            <strong>旅館名</strong>
+    <div>
+        {{ $booking->post->user->name }}
+    </div>
+</div>
+
+<div class="mb-3">
+    <strong>住所</strong>
+    <div>
+        {{ $booking->post->address }}
+    </div>
+</div>
+
+           
 
             <div class="mb-3">
-                ⑦金額
+                金額
             </div>
 
             <div class="mb-4">
-                ⑧内容
+                内容
                 <div class="border p-3 mt-2">
                     {{ $booking->post->content }}
                 </div>

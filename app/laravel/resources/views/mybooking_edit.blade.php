@@ -21,65 +21,105 @@
 
                 @csrf
 
+                {{-- 名前 --}}
                 <div class="mb-3">
                     <label class="form-label">
-                        ①名前
+                        名前
                     </label>
 
                     <input type="text"
                            name="name"
                            class="form-control"
                            value="{{ old('name', $booking->name) }}">
+
+                    @error('name')
+                        <div class="text-danger">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
 
+
+                {{-- 電話番号 --}}
                 <div class="mb-3">
                     <label class="form-label">
-                        ②電話番号
+                        電話番号
                     </label>
 
                     <input type="text"
                            name="tel"
                            class="form-control"
                            value="{{ old('tel', $booking->tel) }}">
+
+                    @error('tel')
+                        <div class="text-danger">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
 
+
+                {{-- チェックイン日 --}}
                 <div class="mb-3">
                     <label class="form-label">
-                        ③チェックイン日
+                        チェックイン日
                     </label>
 
                     <input type="date"
                            name="checkin_date"
                            class="form-control"
                            value="{{ old('checkin_date', $booking->checkin_date) }}">
+
+                    @error('checkin_date')
+                        <div class="text-danger">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
 
+
+                {{-- チェックアウト日 --}}
                 <div class="mb-3">
                     <label class="form-label">
-                        ④チェックアウト日
+                        チェックアウト日
                     </label>
 
                     <input type="date"
                            name="checkout_date"
                            class="form-control"
                            value="{{ old('checkout_date', $booking->checkout_date) }}">
+
+                    @error('checkout_date')
+                        <div class="text-danger">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
 
+
+                {{-- 予約人数 --}}
                 <div class="mb-3">
                     <label class="form-label">
-                        ⑤予約人数
+                        予約人数
                     </label>
 
                     <input type="number"
                            name="booking_people"
                            class="form-control"
                            value="{{ old('booking_people', $booking->booking_people) }}">
+
+                    @error('booking_people')
+                        <div class="text-danger">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
+
 
                 <div class="text-center mt-4">
 
-                   <a href="{{ route('mybooking_conf', $booking->id) }}"
-                        class="btn btn-secondary me-3">
+                    <a href="{{ route('mybooking_conf', $booking->id) }}"
+                       class="btn btn-secondary me-3">
                         戻る
                     </a>
 

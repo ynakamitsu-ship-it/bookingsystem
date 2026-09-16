@@ -76,7 +76,7 @@ public function deleteAccount()
 
     auth()->logout();
 
-    return redirect()->route('home');
+    return redirect('/');
 }
 
 public function accountEditConf(Request $request)
@@ -256,10 +256,63 @@ public function innBookingList()
         }
 
         $posts = $query
-            ->orderBy('created_at', 'desc')
-            ->get();
+    ->orderBy('created_at', 'desc')
+    ->paginate(5);
 
-        return view('home', compact('posts'));
+// 無限スクロールからのAjax通信の場合
+if ($request->ajax()) {
+
+    $html = '';
+
+    foreach ($posts as $post) {
+
+        $image = $post->image_path
+            ? '<img src="' . asset('storage/' . $post->image_path) . '" class="img-fluid" alt="' . e($post->title) . '">'
+            : '<p>画像なし</p>';
+
+        $html .= '
+        <div class="card mb-3">
+            <div class="row align-items-center">
+
+                <div class="col-md-3 text-center">
+                    ' . $image . '
+                </div>
+
+                <div class="col-md-7">
+
+                    <h2>' . e($post->title) . '</h2>
+
+                    <p>店舗名：' . e($post->title) . '</p>
+
+                    <p>住所：' . e($post->address) . '</p>
+
+                    <p>金額：' . number_format($post->price) . '円</p>
+
+                    <p>予約可能日：' . e($post->reserve_date) . '</p>
+
+                </div>
+
+                <div class="col-md-2 text-center">
+
+                    <a href="' . url('/post/' . $post->id) . '"
+                       class="btn btn-primary">
+                        詳細
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+        ';
+    }
+
+    return response()->json([
+        'html' => $html,
+        'hasMore' => $posts->hasMorePages(),
+    ]);
+}
+
+return view('home', compact('posts'));
     }
 
    public function innMain(Request $request)
@@ -533,12 +586,31 @@ public function mybookingEditConf(Request $request, $id)
         ->firstOrFail();
 
     $request->validate([
-        'name' => 'required',
-        'tel' => 'required',
-        'checkin_date' => 'required|date',
-        'checkout_date' => 'required|date|after:checkin_date',
-        'booking_people' => 'required|integer|min:1',
-    ]);
+    'name' => 'required|string|max:10',
+    'tel' => 'required|string|max:20',
+    'checkin_date' => 'required|date|after_or_equal:today',
+    'checkout_date' => 'required|date|after:checkin_date',
+    'booking_people' => 'required|integer|min:1|max:' . $booking->post->max_people,
+], [
+    'name.required' => '名前を入力してください。',
+    'name.max' => '名前は10文字以内で入力してください。',
+
+    'tel.required' => '電話番号を入力してください。',
+    'tel.max' => '電話番号は20文字以内で入力してください。',
+
+    'checkin_date.required' => 'チェックイン日を入力してください。',
+    'checkin_date.date' => '正しい日付を入力してください。',
+    'checkin_date.after_or_equal' => 'チェックイン日は今日以降の日付を入力してください。',
+
+    'checkout_date.required' => 'チェックアウト日を入力してください。',
+    'checkout_date.date' => '正しい日付を入力してください。',
+    'checkout_date.after' => 'チェックアウト日はチェックイン日より後の日付を入力してください。',
+
+    'booking_people.required' => '予約人数を入力してください。',
+    'booking_people.integer' => '予約人数は数値で入力してください。',
+    'booking_people.min' => '予約人数は1人以上で入力してください。',
+    'booking_people.max' => '予約可能人数を超えています。',
+]);
 
     $data = $request->only([
         'name',

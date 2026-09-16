@@ -64,6 +64,21 @@
             <div class="mb-3">
                 <h3>{{ $booking->post->title }}</h3>
             </div>
+            <div class="mb-3">
+    <strong>旅館名</strong>
+    <div>
+        {{ $booking->post->user->name }}
+    </div>
+</div>
+
+<div class="mb-3">
+    <strong>住所</strong>
+    <div>
+        {{ $booking->post->address }}
+    </div>
+</div>
+
+            
 
             <div class="mb-3">
                 <strong>金額</strong>
