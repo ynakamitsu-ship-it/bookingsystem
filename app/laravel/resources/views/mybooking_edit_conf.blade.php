@@ -66,36 +66,79 @@
                 </div>
             </div>
 
-            <hr>
+           <hr>
 
-             <h3 class="mb-3">
-                {{ $booking->post->title }}
-            </h3>
-            <strong>旅館名</strong>
-    <div>
-        {{ $booking->post->user->name }}
+<div class="row">
+
+    {{-- 左側：旅館情報 --}}
+    <div class="col-md-7">
+
+        <h3 class="mb-3">
+            {{ $booking->post->title }}
+        </h3>
+
+        <div class="mb-3">
+            <strong>店舗名</strong>
+            <div>
+                {{ $booking->post->user->name }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <strong>住所</strong>
+            <div>
+                {{ $booking->post->address }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <strong>予約可能日</strong>
+            <div>
+                {{ $booking->post->reserve_date }}以降
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <strong>予約可能人数</strong>
+            <div>
+                {{ $booking->post->max_people }}人
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <strong>金額</strong>
+            <div>
+                {{ number_format($booking->post->price) }}円
+            </div>
+        </div>
+
     </div>
+
+    {{-- 右側：旅館画像 --}}
+    <div class="col-md-5 d-flex align-items-center justify-content-center">
+
+        @if($booking->post->image_path)
+            <img
+                src="{{ asset('storage/' . $booking->post->image_path) }}"
+                class="img-fluid rounded"
+                style="max-height: 300px;"
+                alt="旅館画像"
+            >
+        @endif
+
+    </div>
+
 </div>
 
-<div class="mb-3">
-    <strong>住所</strong>
-    <div>
-        {{ $booking->post->address }}
+{{-- 内容 --}}
+<div class="mb-4">
+    <strong>内容</strong>
+
+    <div class="border rounded p-3 mt-2">
+        {{ $booking->post->content }}
     </div>
 </div>
-
-           
-
-            <div class="mb-3">
-                金額
-            </div>
-
-            <div class="mb-4">
-                内容
-                <div class="border p-3 mt-2">
-                    {{ $booking->post->content }}
-                </div>
-            </div>
+</div>
 
             <div class="text-center">
 

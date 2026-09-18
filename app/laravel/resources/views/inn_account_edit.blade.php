@@ -8,7 +8,7 @@
 
         <form action="{{ route('inn_account_edit_conf') }}"
               method="POST"
-              enctype="multipart/form-data">
+              enctype="multipart/form-data"novalidate>
 
             @csrf
 

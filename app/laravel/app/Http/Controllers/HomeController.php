@@ -11,6 +11,7 @@ use App\Models\Bookmark;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class HomeController extends Controller
 {
@@ -27,31 +28,61 @@ class HomeController extends Controller
             $q->where('del_flg', 0);
         });
 
-    // タイトル・内容・住所・店舗名から検索
+    // タイトル・住所・内容から部分一致検索
     if ($request->filled('keyword')) {
         $keyword = $request->keyword;
 
         $query->where(function ($q) use ($keyword) {
             $q->where('title', 'like', '%' . $keyword . '%')
-              ->orWhere('content', 'like', '%' . $keyword . '%')
-              ->orWhere('address', 'like', '%' . $keyword . '%')
-              ->orWhereHas('user', function ($userQuery) use ($keyword) {
-                  $userQuery->where('name', 'like', '%' . $keyword . '%');
-              });
+                ->orWhere('address', 'like', '%' . $keyword . '%')
+                ->orWhere('content', 'like', '%' . $keyword . '%');
         });
     }
 
-    // 宿泊予定日
-    if ($request->filled('reserve_date')) {
-        $query->where('reserve_date', '>=', $request->reserve_date);
+    // 開始日
+    if ($request->filled('start_date')) {
+        $query->whereDate('reserve_date', '<=', $request->start_date);
     }
+    // 終了日（チェックアウト日）
+if ($request->filled('end_date')) {
+    $query->whereDate('reserve_date', '<', $request->end_date);
+}
 
     // 金額
     if ($request->filled('price')) {
-        $query->where('price', '<=', $request->price);
+
+        if ($request->price === '10000') {
+            // 1万円未満
+            $query->where('price', '<', 10000);
+
+        } elseif ($request->price === '10000-20000') {
+            // 1万円～2万円
+            $query->whereBetween('price', [10000, 20000]);
+
+        } elseif ($request->price === '20000-30000') {
+            // 2万円～3万円
+            $query->whereBetween('price', [20000, 30000]);
+
+        } elseif ($request->price === '30000-') {
+            // 3万円以上
+            $query->where('price', '>=', 30000);
+        }
     }
 
-    $posts = $query->latest()->get();
+    $posts = $query
+        ->orderBy('created_at', 'desc')
+        ->orderBy('id', 'desc')
+        ->paginate(5);
+
+    // 無限スクロール
+    if ($request->ajax()) {
+        $html = view('partials.post_list_item', compact('posts'))->render();
+
+        return response()->json([
+            'html' => $html,
+            'hasMore' => $posts->hasMorePages(),
+        ]);
+    }
 
     return view('welcome', compact('posts'));
 }
@@ -81,18 +112,21 @@ public function deleteAccount()
 
 public function accountEditConf(Request $request)
 {
+    $user = auth()->user();
+
     $request->validate([
-    'name' => 'required',
-    'email' => 'required|email',
-    'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-], [
-    'name.required' => 'ユーザ名を入力してください。',
-    'email.required' => 'メールアドレスを入力してください。',
-    'email.email' => 'メールアドレスの形式が正しくありません。',
-    'icon.image' => '画像ファイルを選択してください。',
-    'icon.mimes' => 'JPEG、PNG、JPG、GIF形式の画像を選択してください。',
-    'icon.max' => '画像のサイズは2MB以内にしてください。',
-]);
+        'name' => 'required',
+        'email' => 'required|email|unique:users,email,' . $user->id,
+        'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ], [
+        'name.required' => 'ユーザ名を入力してください。',
+        'email.required' => 'メールアドレスを入力してください。',
+        'email.email' => 'メールアドレスの形式が正しくありません。',
+        'email.unique' => 'このメールアドレスはすでに使用されています。',
+        'icon.image' => '画像ファイルを選択してください。',
+        'icon.mimes' => 'JPEG、PNG、JPG、GIF形式の画像を選択してください。',
+        'icon.max' => '画像のサイズは2MB以内にしてください。',
+    ]);   
 
     $iconPath = null;
 
@@ -114,22 +148,21 @@ public function accountUpdate(Request $request)
 
     $request->validate([
         'name' => 'required',
-        'email' => 'required|email',
+        'email' => 'required|email|unique:users,email,' . $user->id,
     ]);
 
     $user->name = $request->name;
     $user->email = $request->email;
 
-    // アイコンが選択されていた場合
-    if ($request->icon) {
-        $user->icon = $request->icon;
+    // アイコンが変更されていた場合
+    if ($request->icon_path) {
+        $user->icon = $request->icon_path;
     }
 
     $user->save();
 
     return redirect()->route('general_mypage');
 }
-
 
 public function innMypage()
 {
@@ -150,15 +183,21 @@ public function innAccountEditConf(Request $request)
 
     $request->validate([
         'name' => 'required',
-        'email' => 'required|email',
+         'email' => [
+        'required',
+        'email',
+        Rule::unique('users', 'email')->ignore($user->id),
+    ],
         'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ], [
         'name.required' => 'ユーザ名を入力してください。',
         'email.required' => 'メールアドレスを入力してください。',
+        'email.unique' => 'このメールアドレスは既に使用されています。',
         'email.email' => 'メールアドレスの形式が正しくありません。',
         'icon.image' => '画像ファイルを選択してください。',
         'icon.mimes' => 'JPEG、PNG、JPG、GIF形式の画像を選択してください。',
         'icon.max' => '画像のサイズは2MB以内にしてください。',
+         'icon.uploaded' => 'アイコン画像のアップロードに失敗しました。',
     ]);
 
     // アイコンを選択していた場合、一時的に保存
@@ -181,10 +220,19 @@ public function innAccountUpdate(Request $request)
 {
     $user = auth()->user();
 
+    $request->validate([
+        'name' => 'required|string',
+        'email' => 'required|email',
+        'icon_path' => 'nullable|string',
+    ], [
+        'name.required' => 'ユーザ名を入力してください。',
+        'email.required' => 'メールアドレスを入力してください。',
+        'email.email' => 'メールアドレスの形式が正しくありません。',
+    ]);
+
     $user->name = $request->name;
     $user->email = $request->email;
 
-    // 確認画面から渡されたアイコンを保存
     if ($request->icon_path) {
         $user->icon = $request->icon_path;
     }
@@ -193,7 +241,6 @@ public function innAccountUpdate(Request $request)
 
     return redirect()->route('inn_mypage');
 }
-
 public function innDeleteAccount()
 {
     $user = auth()->user();
@@ -208,7 +255,7 @@ public function innDeleteAccountPost()
 
     $user->delete();
 
-    return redirect()->route('home');
+    return redirect('/');
 }
 
 public function innBookingList()
@@ -218,14 +265,33 @@ public function innBookingList()
     $bookings = \DB::table('bookings')
         ->join('posts', 'bookings.post_id', '=', 'posts.id')
         ->where('posts.user_id', $user->id)
+        ->where('posts.del_flg', 0)
+        ->where('bookings.del_flg', 0)
         ->select(
-            'bookings.*'
-        )
-        ->get();
+    'bookings.*',
+    'posts.title',
+    'posts.address',
+    'posts.content',
+    'posts.image_path'
+)
+        ->paginate(5);
+
+    if (request()->ajax()) {
+
+        $html = '';
+
+        foreach ($bookings as $booking) {
+            $html .= view('partials.innbooking_item', compact('booking'))->render();
+        }
+
+        return response()->json([
+            'html' => $html,
+            'hasMore' => $bookings->hasMorePages(),
+        ]);
+    }
 
     return view('innbooking_list', compact('bookings'));
 }
-
     public function index(Request $request)
     {
         $query = Post::where('del_flg', 0);
@@ -236,75 +302,52 @@ public function innBookingList()
 
             $query->where(function ($q) use ($keyword) {
                 $q->where('title', 'like', '%' . $keyword . '%')
-                  ->orWhere('address', 'like', '%' . $keyword . '%');
+                  ->orWhere('address', 'like', '%' . $keyword . '%')
+                  ->orWhere('content', 'like', '%' . $keyword . '%');
             });
         }
 
         // ② 宿泊予定日（開始日）
-        if ($request->filled('start_date')) {
-            $query->whereDate('reserve_date', '>=', $request->start_date);
-        }
+        // 宿泊予定日（開始日）
+if ($request->filled('start_date')) {
+    $query->whereDate('reserve_date', '<=', $request->start_date);
+}
 
         // ③ 宿泊予定日（終了日）
-        if ($request->filled('end_date')) {
-            $query->whereDate('reserve_date', '<=', $request->end_date);
-        }
-
+        
+if ($request->filled('end_date')) {
+    $query->whereDate('reserve_date', '<', $request->end_date);
+}
         // ④ 金額
-        if ($request->filled('price')) {
-            $query->where('price', '<=', $request->price);
-        }
+        // 金額
+if ($request->filled('price')) {
 
-        $posts = $query
+    if ($request->price === '10000') {
+        // 1万円以下
+        $query->where('price', '<', 10000);
+
+    } elseif ($request->price === '10000-20000') {
+        // 1万円～2万円
+        $query->whereBetween('price', [10000, 20000]);
+
+    } elseif ($request->price === '20000-30000') {
+        // 2万円～3万円
+        $query->whereBetween('price', [20000, 30000]);
+
+    } elseif ($request->price === '30000-') {
+        // 3万円以上
+        $query->where('price', '>=', 30000);
+    }
+}
+
+       $posts = $query
     ->orderBy('created_at', 'desc')
+    ->orderBy('id', 'desc')
     ->paginate(5);
 
 // 無限スクロールからのAjax通信の場合
 if ($request->ajax()) {
-
-    $html = '';
-
-    foreach ($posts as $post) {
-
-        $image = $post->image_path
-            ? '<img src="' . asset('storage/' . $post->image_path) . '" class="img-fluid" alt="' . e($post->title) . '">'
-            : '<p>画像なし</p>';
-
-        $html .= '
-        <div class="card mb-3">
-            <div class="row align-items-center">
-
-                <div class="col-md-3 text-center">
-                    ' . $image . '
-                </div>
-
-                <div class="col-md-7">
-
-                    <h2>' . e($post->title) . '</h2>
-
-                    <p>店舗名：' . e($post->title) . '</p>
-
-                    <p>住所：' . e($post->address) . '</p>
-
-                    <p>金額：' . number_format($post->price) . '円</p>
-
-                    <p>予約可能日：' . e($post->reserve_date) . '</p>
-
-                </div>
-
-                <div class="col-md-2 text-center">
-
-                    <a href="' . url('/post/' . $post->id) . '"
-                       class="btn btn-primary">
-                        詳細
-                    </a>
-
-                </div>
-
-            </div>
-        </div>
-        ';
-    }
+    $html = view('partials.post_list_item', compact('posts'))->render();
 
     return response()->json([
         'html' => $html,
@@ -318,6 +361,7 @@ return view('home', compact('posts'));
    public function innMain(Request $request)
 {
     $posts = Post::where('user_id', auth()->id())
+    ->where('del_flg', 0)
         ->orderBy('created_at', 'desc')
         ->paginate(5);
 
@@ -410,21 +454,32 @@ public function storePost(Request $request)
 
     return redirect()->route('inn_main');
 }
-    public function post($id)
+   public function post($id)
 {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+    ->where('del_flg', 0)
+    ->firstOrFail();
 
-     $isBooked = Booking::where('user_id', auth()->id())
+    // 予約済みか確認
+    $isBooked = Booking::where('user_id', auth()->id())
         ->where('post_id', $post->id)
         ->where('del_flg', 0)
         ->exists();
 
-   return view('post', compact('post', 'isBooked'));
+    // ブックマーク済みか確認
+    $isBookmarked = Bookmark::where('user_id', auth()->id())
+        ->where('post_id', $post->id)
+        ->exists();
+
+    return view('post', compact('post', 'isBooked', 'isBookmarked'));
 }
 
 public function innPost($id)
 {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+        ->where('user_id', auth()->id())
+        ->where('del_flg', 0)
+        ->firstOrFail();
 
     return view('inn_post', [
         'post' => $post
@@ -433,31 +488,35 @@ public function innPost($id)
 
 public function booking($id)
 {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+        ->where('del_flg', 0)
+        ->firstOrFail();
 
     return view('booking', compact('post'));
 }
 
 public function bookingConfirm(Request $request, $id)
 {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+    ->where('del_flg', 0)
+    ->firstOrFail();
 
     $request->validate([
-        'name' => 'required|max:255',
+        'name' => 'required|max:10',
         'tel' => ['required', 'regex:/^[0-9-]+$/'],
         'checkin_date' => 'required|date|after_or_equal:today',
         'checkout_date' => 'required|date|after:checkin_date',
         'booking_people' => 'required|integer|min:1|max:' . $post->max_people,
     ], [
         'name.required' => '名前を入力してください。',
-        'name.max' => '名前は255文字以内で入力してください。',
+        'name.max' => '名前は10文字以内で入力してください。',
 
         'tel.required' => '電話番号を入力してください。',
         'tel.regex' => '電話番号は数字とハイフンで入力してください。',
 
         'checkin_date.required' => 'チェックイン日を選択してください。',
         'checkin_date.date' => '正しいチェックイン日を選択してください。',
-        'checkin_date.after_or_equal' => 'チェックイン日は今日以降の日付を選択してください。',
+        'checkin_date.after_or_equal' => 'チェックイン日は本日以降かつ予約可能日以降の日付を選択してください。',
 
         'checkout_date.required' => 'チェックアウト日を選択してください。',
         'checkout_date.date' => '正しいチェックアウト日を選択してください。',
@@ -482,14 +541,23 @@ public function bookingConfirm(Request $request, $id)
 
 public function innBookingConf($id)
 {
-    $booking = \App\Models\Booking::with(['post'])->findOrFail($id);
+    $booking = \App\Models\Booking::with(['post'])
+        ->where('id', $id)
+        ->where('del_flg', 0)
+        ->whereHas('post', function ($query) {
+            $query->where('user_id', auth()->id())
+                  ->where('del_flg', 0);
+        })
+        ->firstOrFail();
 
     return view('innbooking_conf', compact('booking'));
 }
 
 public function reserve(Request $request, $id)
 {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+        ->where('del_flg', 0)
+        ->firstOrFail();
 
     // 同じ旅館をすでに予約していないか確認
     $exists = Booking::where('user_id', auth()->id())
@@ -517,21 +585,54 @@ public function reserve(Request $request, $id)
 
 public function bookmark($id)
 {
-    Bookmark::firstOrCreate([
-        'user_id' => Auth::id(),
-        'post_id' => $id,
-    ]);
+     Post::where('id', $id)
+        ->where('del_flg', 0)
+        ->firstOrFail();
+
+    $bookmark = Bookmark::where('user_id', Auth::id())
+        ->where('post_id', $id)
+        ->first();
+
+    if ($bookmark) {
+        // すでにブックマーク済みなら削除
+        $bookmark->delete();
+    } else {
+        // まだならブックマーク登録
+        Bookmark::create([
+            'user_id' => Auth::id(),
+            'post_id' => $id,
+        ]);
+    }
 
     return redirect('/post/' . $id);
 }
 
-public function mybookingList()
+public function mybookingList(Request $request)
 {
     $bookings = Booking::where('user_id', auth()->id())
         ->where('del_flg', 0)
+        ->whereHas('post', function ($query) {
+            $query->where('del_flg', 0);
+        })
         ->with('post')
-        ->get();
+        ->orderBy('id', 'desc')
+        ->paginate(5);
 
+    // 無限スクロールで2ページ目以降を取得するとき
+    if ($request->ajax()) {
+        $html = '';
+
+        foreach ($bookings as $booking) {
+            $html .= view('partials.mybooking_item', compact('booking'))->render();
+        }
+
+        return response()->json([
+            'html' => $html,
+            'hasMore' => $bookings->hasMorePages(),
+        ]);
+    }
+
+    // 最初にページを開いたとき
     return view('mybooking_list', compact('bookings'));
 }
 
@@ -551,6 +652,7 @@ public function deleteMybooking($id)
     $booking = Booking::with('post')
         ->where('id', $id)
         ->where('user_id', auth()->id())
+        ->where('del_flg', 0)
         ->firstOrFail();
 
     return view('delete_mybooking', compact('booking'));
@@ -560,6 +662,7 @@ public function deleteMybookingPost($id)
 {
     $booking = Booking::where('id', $id)
         ->where('user_id', auth()->id())
+        ->where('del_flg', 0)
         ->firstOrFail();
 
     $booking->delete();
@@ -600,7 +703,7 @@ public function mybookingEditConf(Request $request, $id)
 
     'checkin_date.required' => 'チェックイン日を入力してください。',
     'checkin_date.date' => '正しい日付を入力してください。',
-    'checkin_date.after_or_equal' => 'チェックイン日は今日以降の日付を入力してください。',
+    'checkin_date.after_or_equal' => 'チェックイン日は本日以降かつ予約可能日以降の日付を入力してください。',
 
     'checkout_date.required' => 'チェックアウト日を入力してください。',
     'checkout_date.date' => '正しい日付を入力してください。',
@@ -644,24 +747,45 @@ public function mybookingUpdate(Request $request, $id)
     return redirect()->route('mybooking_list');
 }
 
-public function bookmarkList()
+public function bookmarkList(Request $request)
 {
     $bookmarks = Bookmark::with('post')
         ->where('user_id', auth()->id())
-        ->get();
+        ->whereHas('post', function ($query) {
+            $query->where('del_flg', 0);
+        })
+        ->orderBy('id', 'desc')
+        ->paginate(5);
+
+    // 無限スクロールからのアクセス
+    if ($request->ajax()) {
+
+        $html = view('partials.bookmark_item', [
+            'bookmarks' => $bookmarks
+        ])->render();
+
+        return response()->json([
+            'html' => $html,
+            'hasMore' => $bookmarks->hasMorePages(),
+        ]);
+    }
 
     return view('bookmark_list', compact('bookmarks'));
 }
 
 public function report($id)
 {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+    ->where('del_flg', 0)
+    ->firstOrFail();
 
     return view('report', compact('post'));
 }
 public function reportConf(Request $request, $id)
 {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+    ->where('del_flg', 0)
+    ->firstOrFail();
 
     $request->validate([
         'reason' => 'required',
@@ -677,7 +801,15 @@ public function reportConf(Request $request, $id)
 
 public function reportComplete(Request $request, $id)
 {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+        ->where('del_flg', 0)
+        ->firstOrFail();
+
+    $request->validate([
+        'reason' => 'required|string',
+    ], [
+        'reason.required' => '通報理由を入力してください。',
+    ]);
 
     Report::create([
         'user_id' => auth()->id(),
@@ -690,7 +822,12 @@ public function reportComplete(Request $request, $id)
 
 public function innReport($id)
 {
-    $booking = Booking::with('user')->findOrFail($id);
+    $booking = Booking::with(['user', 'post'])
+        ->where('id', $id)
+        ->whereHas('post', function ($query) {
+            $query->where('user_id', auth()->id());
+        })
+        ->firstOrFail();
 
     return view('inn_report', [
         'booking' => $booking
@@ -699,7 +836,12 @@ public function innReport($id)
 
 public function innReportConf(Request $request, $id)
 {
-    $booking = Booking::findOrFail($id);
+    $booking = Booking::with('post')
+        ->where('id', $id)
+        ->whereHas('post', function ($query) {
+            $query->where('user_id', auth()->id());
+        })
+        ->firstOrFail();
 
     $request->validate([
         'reason' => 'required',
@@ -715,7 +857,19 @@ public function innReportConf(Request $request, $id)
 
 public function innReportComp(Request $request, $id)
 {
-    $booking = Booking::findOrFail($id);
+    $booking = Booking::with('post')
+        ->where('id', $id)
+        ->whereHas('post', function ($query) {
+            $query->where('user_id', auth()->id())
+                  ->where('del_flg', 0);
+        })
+        ->firstOrFail();
+
+    $request->validate([
+        'reason' => 'required|string',
+    ], [
+        'reason.required' => '通報理由を入力してください。',
+    ]);
 
     Report::create([
         'user_id' => $booking->user_id,
@@ -735,44 +889,74 @@ public function mypage()
 
 public function editPost($id)
 {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+        ->where('user_id', auth()->id())
+        ->where('del_flg', 0)
+        ->firstOrFail();
 
     return view('edit_post', compact('post'));
 }
 
 public function editPostConf(Request $request, $id)
 {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+        ->where('user_id', auth()->id())
+        ->where('del_flg', 0)
+        ->firstOrFail();
+
 
     $request->validate([
         'title' => 'required|max:50',
         'address' => 'required',
+
+        // 画像
+        'image' => 'nullable|image|max:2048',
+
         'price' => 'required|numeric',
         'reserve_date' => 'required',
         'max_people' => 'required|numeric',
         'content' => 'required|max:500',
     ], [
+        // タイトル
         'title.required' => 'タイトルを入力してください。',
         'title.max' => 'タイトルは50文字以内で入力してください。',
 
+        // 住所
         'address.required' => '住所を入力してください。',
 
+        // 画像
+        'image.image' => '画像ファイルを選択してください。',
+        'image.max' => '画像は2MB以下にしてください。',
+          'image.uploaded' => '画像のアップロードに失敗しました。',
+
+        // 金額
         'price.required' => '金額を入力してください。',
         'price.numeric' => '金額は数値で入力してください。',
 
+        // 予約可能日
         'reserve_date.required' => '予約可能日を入力してください。',
 
+        // 予約可能人数
         'max_people.required' => '予約可能人数を入力してください。',
         'max_people.numeric' => '予約可能人数は数値で入力してください。',
 
+        // 内容
         'content.required' => '内容を入力してください。',
         'content.max' => '内容は500文字以内で入力してください。',
     ]);
 
+    // 現在登録されている画像
+    $imagePath = $post->image_path;
+
+    // 新しい画像が選択された場合
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('posts', 'public');
+    }
+
     return view('edit_post_conf', [
         'post' => $post,
         'title' => $request->title,
-        'image' => $request->image,
+        'image_path' => $imagePath,
         'price' => $request->price,
         'reserve_date' => $request->reserve_date,
         'max_people' => $request->max_people,
@@ -783,14 +967,20 @@ public function editPostConf(Request $request, $id)
 
 public function updatePost(Request $request, $id)
 {
-    $post = Post::findOrFail($id);
+   $post = Post::where('id', $id)
+        ->where('user_id', auth()->id())
+        ->where('del_flg', 0)
+        ->firstOrFail();
+
 
     $post->update([
         'title' => $request->title,
+         'address' => $request->address,
         'price' => $request->price,
         'reserve_date' => $request->reserve_date,
         'max_people' => $request->max_people,
         'content' => $request->content,
+        'image_path' => $request->image_path,
     ]);
 
     return redirect()->route('inn_post', ['id' => $id]);
@@ -798,7 +988,9 @@ public function updatePost(Request $request, $id)
 
 public function deletePost($id)
 {
-    $post = Post::findOrFail($id);
+    $post = Post::where('id', $id)
+    ->where('user_id', auth()->id())
+    ->firstOrFail();
     Booking::where('post_id', $id)->delete();
     Report::where('post_id', $id)->delete();
 
@@ -812,14 +1004,14 @@ public function adminMain()
     return view('admin_main');
 }
 
-public function userList()
+public function userList(Request $request)
 {
     // 一般ユーザー
     $generalUsers = User::where('role', 0)
         ->where('del_flg', 0)
         ->withCount('reports')
         ->orderByDesc('reports_count')
-        ->get();
+        ->paginate(5, ['*'], 'general_page');
 
     // 旅館運営ユーザー
     $innUsers = User::where('role', 1)
@@ -830,21 +1022,69 @@ public function userList()
             }
         ])
         ->orderByDesc('deleted_posts_count')
-        ->get();
+        ->paginate(5, ['*'], 'inn_page');
+
+    // 無限スクロールからの通信
+    if ($request->ajax()) {
+
+        if ($request->type === 'general') {
+            $html = '';
+
+            foreach ($generalUsers as $user) {
+                $html .= view('partials.general_user_item', compact('user'))->render();
+            }
+
+            return response()->json([
+                'html' => $html,
+                'hasMore' => $generalUsers->hasMorePages(),
+            ]);
+        }
+
+        if ($request->type === 'inn') {
+            $html = '';
+
+            foreach ($innUsers as $user) {
+                $html .= view('partials.inn_user_item', compact('user'))->render();
+            }
+
+            return response()->json([
+                'html' => $html,
+                'hasMore' => $innUsers->hasMorePages(),
+            ]);
+        }
+    }
 
     return view('user_list', compact('generalUsers', 'innUsers'));
 }
 
-public function postList()
+public function postList(Request $request)
 {
     $posts = Post::with('user')
         ->withCount('reports')
         ->where('del_flg', 0)
         ->orderByDesc('reports_count')
-        ->get();
+        ->orderBy('id')
+        ->paginate(5);
+
+    if ($request->ajax()) {
+
+    $html = '';
+
+    foreach ($posts as $post) {
+        $html .= view('partials.post_list_item', [
+            'post' => $post
+        ])->render();
+    }
+
+    return response()->json([
+        'html' => $html,
+        'hasMore' => $posts->hasMorePages(),
+    ]);
+}
 
     return view('post_list', compact('posts'));
 }
+
 public function deleteUser($id)
 {
     $user = User::findOrFail($id);
@@ -858,8 +1098,21 @@ public function deleteUserPost($id)
 {
     $user = User::findOrFail($id);
 
+    // ユーザーを削除状態にする
     $user->del_flg = 1;
     $user->save();
+
+    // 一般ユーザーの場合
+    if ($user->role == 0) {
+        Booking::where('user_id', $user->id)
+            ->update(['del_flg' => 1]);
+    }
+
+    // 旅館運営ユーザーの場合
+    if ($user->role == 1) {
+        Post::where('user_id', $user->id)
+            ->update(['del_flg' => 1]);
+    }
 
     return redirect()->route('user_list');
 }

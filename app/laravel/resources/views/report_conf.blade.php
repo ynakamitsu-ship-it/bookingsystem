@@ -37,8 +37,15 @@
                     </label>
 
                     <div class="border rounded p-3 bg-light">
-                        {{ $post->title }}
+                        <div>
+                             タイトル：{{ $post->title }}
+                        </div>
+
+                    <div class="mt-2">
+                        店舗名：{{ $post->user->name }}
                     </div>
+                </div>
+                    
                 </div>
 
                 <!-- ボタン -->
@@ -49,7 +56,7 @@
                         戻る
                     </a>
 
-                   <form action="{{ route('report_comp', $post->id) }}" method="POST" class="d-inline">
+                   <form action="{{ route('report.comp', $post->id) }}" method="POST" class="d-inline">
     @csrf
 
     <input type="hidden" name="reason" value="{{ $reason }}">

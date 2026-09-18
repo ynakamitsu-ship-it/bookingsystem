@@ -73,12 +73,12 @@ class RegisterController extends Controller
   public function storeRegisterConfirm(Request $request)
 {
     $request->validate([
-        'store_name' => 'required|string|max:255',
+        'store_name' => 'required|string|max:10',
         'email' => 'required|email|max:255|unique:users,email',
         'password' => 'required|confirmed|min:8',
     ], [
         'store_name.required' => '店舗名を入力してください。',
-        'store_name.max' => '店舗名は255文字以内で入力してください。',
+        'store_name.max' => '店舗名は10文字以内で入力してください。',
 
         'email.required' => 'メールアドレスを入力してください。',
         'email.email' => '正しいメールアドレスを入力してください。',

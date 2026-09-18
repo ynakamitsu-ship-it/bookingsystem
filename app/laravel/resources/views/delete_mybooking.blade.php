@@ -19,23 +19,23 @@
             <div class="col-md-5">
 
                 <p class="border-bottom pb-2">
-                    ①名前
+                    名前
                 </p>
 
                 <p class="border-bottom pb-2">
-                    ②電話番号
+                    電話番号
                 </p>
 
                 <p class="border-bottom pb-2">
-                    ③チェックイン日
+                    チェックイン日
                 </p>
 
                 <p class="border-bottom pb-2">
-                    ④チェックアウト日
+                    チェックアウト日
                 </p>
 
                 <p class="border-bottom pb-2">
-                    ⑤予約人数
+                    予約人数
                 </p>
 
             </div>
@@ -66,39 +66,46 @@
 
         </div>
 
-        <div class="border rounded p-4 mt-4">
+        <hr>
 
-            <h2>
-                ⑥{{ $booking->post->title }}
-            </h2>
+<h3 class="mb-3">
+    {{ $booking->post->title }}
+</h3>
 
-            <p>
-                ⑦金額
-            </p>
+<div class="mb-3">
+    <strong>店舗名</strong>
+    <div>
+        {{ $booking->post->user->name }}
+    </div>
+</div>
 
-            <p>
-                {{ $booking->post->price }}円
-            </p>
+<div class="mb-3">
+    <strong>住所</strong>
+    <div>
+        {{ $booking->post->address }}
+    </div>
+</div>
 
-            <div class="border rounded p-3 mt-3">
+<div class="mb-3">
+    <strong>金額</strong>
+    <div>
+        {{ $booking->post->price }}円
+    </div>
+</div>
 
-                <p>
-                    ⑧内容
-                </p>
+<div class="mb-4">
+    <strong>内容</strong>
 
-                <p>
-                    {{ $booking->post->content }}
-                </p>
-
-            </div>
-
-        </div>
+    <div class="border p-3 mt-2">
+        {{ $booking->post->content }}
+    </div>
+</div>
 
         <div class="text-center mt-4">
 
             <a href="{{ route('booking_conf', $booking->id) }}"
                class="btn btn-secondary me-3">
-                ⑨戻る
+                戻る
             </a>
 
             <form action="{{ route('booking.delete.post', $booking->id) }}"
@@ -109,7 +116,7 @@
 
                 <button type="submit"
                         class="btn btn-danger">
-                    ⑩キャンセル
+                    キャンセル
                 </button>
 
             </form>

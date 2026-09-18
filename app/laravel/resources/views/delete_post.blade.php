@@ -53,6 +53,16 @@
 
                     </div>
 
+                    {{-- 住所 --}}
+<div class="mb-4">
+    <label class="fw-bold">
+        住所
+    </label>
+
+    <div class="border p-2">
+        {{ $post->address }}
+    </div>
+</div>
 
                     {{-- 金額 --}}
                     <div class="mb-4">

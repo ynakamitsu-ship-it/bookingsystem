@@ -4,61 +4,67 @@
 
 <div class="container mt-5">
 
-    <div class="border p-4">
+    <div class="card mx-auto" style="max-width: 600px;">
 
-        <!-- ヘッダー -->
-        <div class="mb-4">
-            <h1 class="text-center">通報内容確認</h1>
+        {{-- タイトル --}}
+        <div class="card-header text-center">
+            <h2 class="mb-0">通報内容確認</h2>
         </div>
 
-        <!-- 通報内容 -->
-        <div class="d-flex justify-content-center mb-4">
-            <div class="border p-4" style="width: 320px; min-height: 150px;">
+        {{-- 内容 --}}
+        <div class="card-body">
 
-                <p class="mb-2">① 通報理由</p>
+            {{-- 通報理由 --}}
+            <div class="mb-4">
+                <label class="form-label fw-bold">
+                    通報理由
+                </label>
 
-                <div>
+                <div class="border rounded p-3 bg-light">
                     {{ $reason }}
                 </div>
+            </div>
+
+            {{-- 通報対象 --}}
+            <div class="mb-4">
+                <label class="form-label fw-bold">
+                    通報対象
+                </label>
+
+                <div class="border rounded p-3 bg-light">
+                    {{ $booking->name }}
+                </div>
+            </div>
+
+            {{-- ボタン --}}
+            <div class="d-flex justify-content-center gap-3">
+
+                {{-- 戻る --}}
+                <a href="{{ route('inn_report', $booking->id) }}"
+                   class="btn btn-secondary">
+                    戻る
+                </a>
+
+                {{-- 通報 --}}
+                <form action="{{ route('inn_report_comp', $booking->id) }}"
+                      method="POST">
+
+                    @csrf
+
+                    <input type="hidden"
+                           name="reason"
+                           value="{{ $reason }}">
+
+                    <button type="submit"
+                            class="btn btn-danger">
+                        通報
+                    </button>
+
+                </form>
 
             </div>
-        </div>
-
-        <!-- ボタン -->
-        <div class="d-flex justify-content-center gap-4">
-
-            <!-- 戻る -->
-            <a
-                href="{{ route('inn_report', $booking->id) }}"
-                class="btn btn-secondary px-5"
-            >
-                戻る
-            </a>
-
-            <!-- 確認 -->
-            <form
-                method="POST"
-                action="{{ route('inn_report_comp', $booking->id) }}"
-            >
-                @csrf
-
-                <input
-                    type="hidden"
-                    name="reason"
-                    value="{{ $reason }}"
-                >
-
-                <button
-                    type="submit"
-                    class="btn btn-primary px-5"
-                >
-                    確認
-                </button>
-
-            </form>
 
         </div>
-
     </div>
 
 </div>

@@ -18,8 +18,8 @@
 
                     <div class="border w-100" style="height: 250px;">
 
-                        @if($post->image)
-                            <img src="{{ asset('storage/' . $post->image) }}"
+                        @if($post->image_path)
+                            <img src="{{ asset('storage/' . $post->image_path) }}"
                                  class="img-fluid w-100 h-100"
                                  style="object-fit: cover;">
                         @else
@@ -75,7 +75,25 @@
                             </div>
                         @enderror
                     </div>
+{{-- 住所 --}}
+<div class="mb-3">
+    <label class="form-label">
+        住所
+    </label>
 
+    <input
+        type="text"
+        name="address"
+        class="form-control"
+        value="{{ old('address', $post->address) }}"
+    >
+
+    @error('address')
+        <div class="text-danger mt-1">
+            {{ $message }}
+        </div>
+    @enderror
+</div>
 
                     {{-- 金額 --}}
                     <div class="mb-3">

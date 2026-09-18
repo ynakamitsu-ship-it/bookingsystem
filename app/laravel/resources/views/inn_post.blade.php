@@ -82,7 +82,7 @@
                 <div class="mb-3">
 
                     <div class="border p-2">
-                        予約可能日：{{ $post->reserve_date }}
+                        予約可能日：{{ $post->reserve_date }}以降
                     </div>
 
                 </div>
@@ -120,6 +120,15 @@
         {{-- ボタン --}}
         <div class="d-flex justify-content-center gap-5">
 
+        <a href="{{ route('inn_main') }}"
+                        class="btn btn-outline-secondary px-5">
+                 旅館運営ユーザーページへ戻る
+                </a>
+ {{-- 投稿編集 --}}
+                <a href="{{ route('edit_post', $post->id) }}"
+                    class="btn btn-outline-primary px-5">
+                    投稿編集
+                </a>
             {{-- 投稿削除 --}}
             <form action="{{ route('post_delete', $post->id) }}" method="POST">
                 @csrf
@@ -130,16 +139,9 @@
                 </button>
             </form>
 
-            {{-- 投稿編集 --}}
-                <a href="{{ route('edit_post', $post->id) }}"
-                    class="btn btn-outline-primary px-5">
-                    投稿編集
-                </a>
+           
                 
-                <a href="{{ route('inn_main') }}"
-                        class="btn btn-outline-secondary px-5">
-                 旅館運営ユーザーページへ戻る
-                </a>
+                
 
         </div>
 

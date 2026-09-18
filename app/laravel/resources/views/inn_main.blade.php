@@ -22,7 +22,10 @@
     @if($posts->count() > 0)
 
         {{-- Ajaxで新しい投稿を追加する場所 --}}
-        <div id="post-list">
+        <div id="post-list"
+    data-infinite-scroll
+    data-url="{{ route('inn_main') }}"
+    data-page-name="page">
 
             @foreach($posts as $post)
 

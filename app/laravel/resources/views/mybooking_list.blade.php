@@ -5,73 +5,24 @@
 <div class="container">
 
     <h1 class="text-center mb-5">予約一覧</h1>
+
     <div class="text-center mt-4 mb-4">
-    <a href="{{ route('general_mypage') }}" class="btn btn-secondary">
-        戻る
-    </a>
-</div>
+        <a href="{{ route('general_mypage') }}"
+           class="btn btn-secondary">
+            戻る
+        </a>
+    </div>
 
-    @foreach($bookings as $booking)
+    <div id="mybooking-list"
+         data-infinite-scroll
+         data-url="{{ route('mybooking_list') }}"
+         data-page-name="page">
 
-        <div class="card mb-4">
+        @foreach($bookings as $booking)
+            @include('partials.mybooking_item', ['booking' => $booking])
+        @endforeach
 
-            <div class="card-body">
-
-                <div class="row align-items-center">
-
-                    {{-- 画像 --}}
-                    <div class="col-md-3 text-center">
-                        @if($booking->post->image_path)
-                            <img
-                                src="{{ asset('storage/' . $booking->post->image_path) }}"
-                                class="img-fluid"
-                                alt="画像"
-                            >
-                        @else
-                            <div class="border p-5">
-                                画像
-                            </div>
-                        @endif
-                    </div>
-
-                    {{-- 店舗情報 --}}
-                    <div class="col-md-6">
-
-                        <h3>
-                            {{ $booking->post->title }}
-                        </h3>
-
-                        <p class="mb-1">
-                            <strong>店舗名：</strong>
-                            {{ $booking->post->title }}
-                        </p>
-
-                        <p class="mb-0">
-                            <strong>店舗住所：</strong>
-                            {{ $booking->post->address }}
-                        </p>
-
-                    </div>
-
-                    {{-- 確認ボタン --}}
-                    <div class="col-md-3 text-center">
-
-                       <a
-                            href="{{ route('mybooking_conf', $booking->id) }}"
-                             class="btn btn-primary"
-                        >
-                            確認
-                            </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    @endforeach
+    </div>
 
 </div>
 

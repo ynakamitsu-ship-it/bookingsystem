@@ -85,14 +85,6 @@
     </div>
 @endif
 
-                {{-- 旅館名 --}}
-                <div class="mb-3">
-                    <h4 class="mb-1">旅館名</h4>
-
-                    <p class="mb-0">
-                        {{ $post->user->name }}
-                    </p>
-                </div>
 
                
 
@@ -105,6 +97,16 @@
 
                     <p class="mb-0">
                         {{ $post->title }}
+                    </p>
+                </div>
+
+                
+                {{-- 店舗名 --}}
+                <div class="mb-3">
+                    <h4 class="mb-1">店舗名</h4>
+
+                    <p class="mb-0">
+                        {{ $post->user->name }}
                     </p>
                 </div>
 
@@ -125,6 +127,8 @@
                         {{ number_format($post->price) }}円
                     </p>
                 </div>
+                
+                
 
                 {{-- 内容 --}}
                 <div class="border border-2 border-dark rounded p-4 mt-3">

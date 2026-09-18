@@ -11,14 +11,7 @@
             <h1 class="text-center">通報が完了しました</h1>
         </div>
 
-        <!-- 完了メッセージ -->
-        <div class="d-flex justify-content-center mb-5">
-            <div class="border p-4 text-center" style="width: 320px; min-height: 120px;">
-                <p class="mb-0">
-                    通報が完了しました。
-                </p>
-            </div>
-        </div>
+        
 
         <!-- ボタン -->
         <div class="d-flex justify-content-center">

@@ -7,7 +7,11 @@
     <h2 class="text-center mb-5">
         ユーザー一覧
     </h2>
-
+<div class="text-center mt-4 mb-4">
+    <a href="{{ route('admin_main') }}" class="btn btn-outline-dark px-5">
+        管理者ページに戻る
+    </a>
+        </div>
     <div class="row">
 
         {{-- 一般ユーザー --}}
@@ -20,43 +24,25 @@
                 <h3 class="text-center mb-4">
                     一般ユーザー一覧
                 </h3>
+<div id="general-user-list"
+     data-infinite-scroll
+     data-url="{{ route('user_list') }}"
+     data-page-name="general_page"
+     data-type="general">
 
-                @forelse($generalUsers as $user)
+    @forelse($generalUsers as $user)
 
-                    <div class="border p-3 mb-3">
+        @include('partials.general_user_item')
 
-                        <div class="row align-items-center">
+    @empty
 
-                            <div class="col">
-                                <h5 class="mb-2">
-                                    {{ $user->name }}
-                                </h5>
+        <p class="text-center">
+            一般ユーザーはいません。
+        </p>
 
-                                <p class="mb-0">
-                                    通報件数：
-                                    {{ $user->reports_count }}件
-                                </p>
-                            </div>
+    @endforelse
 
-                            <div class="col-auto">
-                                <a href="{{ route('delete_user', $user->id) }}"
-                                    class="btn btn-outline-danger">
-                                     削除
-                                </a>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                @empty
-
-                    <p class="text-center">
-                        一般ユーザーはいません。
-                    </p>
-
-                @endforelse
-
+</div>
             </div>
 
         </div>
@@ -71,52 +57,33 @@
                     旅館運営ユーザー一覧
                 </h3>
 
-                @forelse($innUsers as $user)
+                <div id="inn-user-list"
+     data-infinite-scroll
+     data-url="{{ route('user_list') }}"
+     data-page-name="inn_page"
+     data-type="inn">
 
-                    <div class="border p-3 mb-3">
+    @forelse($innUsers as $user)
 
-                        <div class="row align-items-center">
+        @include('partials.inn_user_item')
 
-                            <div class="col">
-                                <h5 class="mb-2">
-                                    {{ $user->name }}
-                                </h5>
+    @empty
 
-                                <p class="mb-0">
-                                    投稿削除数：
-                                    {{ $user->deleted_posts_count }}件
-                                </p>
-                            </div>
+        <p class="text-center">
+            旅館運営ユーザーはいません。
+        </p>
 
-                            <div class="col-auto">
-                                <a href="{{ route('delete_user', $user->id) }}"
-                                    class="btn btn-outline-danger">
-                                     削除
-                                </a>
-                            </div>
+    @endforelse
 
-                        </div>
+</div>
 
-                    </div>
-
-                @empty
-
-                    <p class="text-center">
-                        旅館運営ユーザーはいません。
-                    </p>
-
-                @endforelse
 
             </div>
 
         </div>
 
     </div>
- <div class="text-center mt-4">
-    <a href="{{ route('admin_main') }}" class="btn btn-outline-dark px-5">
-        管理者ページに戻る
-    </a>
-        </div>
+ 
 </div>
 
 @endsection

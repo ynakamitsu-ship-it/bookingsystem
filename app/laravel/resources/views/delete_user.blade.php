@@ -61,7 +61,7 @@
                         <div class="col-md-6 mb-2">
                             <a href="{{ route('user_list') }}"
                                class="btn btn-outline-dark w-100">
-                                ③戻る
+                                戻る
                             </a>
                         </div>
 
@@ -75,7 +75,7 @@
 
                                 <button type="submit"
                                         class="btn btn-danger w-100">
-                                    ④削除
+                                    削除
                                 </button>
 
                             </form>
@@ -93,7 +93,7 @@
                     <div class="border p-3 h-100">
 
                         <h5 class="text-center mb-3">
-                            ⑤通報理由
+                            通報理由
                         </h5>
 
                         @forelse($reports as $report)

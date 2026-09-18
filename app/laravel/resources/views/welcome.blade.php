@@ -4,134 +4,86 @@
 
 <div class="container">
 
-    <h2 class="text-center mb-4">
-        旅館検索
-    </h2>
 
-    {{-- 検索 --}}
-    <form method="GET" action="{{ route('top') }}" class="mb-5">
+    <h1>旅館予約システム</h1>
+<form method="GET" action="{{ route('top') }}" class="mb-4">
 
-        <div class="row g-2 justify-content-center">
+    <div class="row align-items-center g-3">
 
-            <div class="col-md-4">
-                <input type="text"
-                       name="keyword"
-                       class="form-control"
-                       value="{{ request('keyword') }}"
-                       placeholder="タイトル・内容・住所・店舗名">
-            </div>
-
-            <div class="col-md-3">
-                <input type="date"
-                       name="reserve_date"
-                       class="form-control"
-                       value="{{ request('reserve_date') }}">
-            </div>
-
-            <div class="col-md-2">
-                <input type="number"
-                       name="price"
-                       class="form-control"
-                       value="{{ request('price') }}"
-                       placeholder="金額">
-            </div>
-
-            <div class="col-md-2">
-                <button type="submit"
-                        class="btn btn-primary w-100">
-                    検索
-                </button>
-            </div>
-
+        {{-- ① ワード検索 --}}
+        <div class="col-md-3">
+             <input
+            type="text"
+            name="keyword"
+            placeholder="タイトル・住所・内容を検索"
+            value="{{ request('keyword') }}">
         </div>
 
-    </form>
+        {{-- 開始日 --}}
+<div class="col-md-2">
+    <input
+        type="date"
+        name="start_date"
+        class="form-control"
+        value="{{ request('start_date') }}">
+</div>
 
+<div class="col-auto px-1">
+    ～
+</div>
 
+{{-- 終了日 --}}
+<div class="col-md-2">
+    <input
+        type="date"
+        name="end_date"
+        class="form-control"
+        value="{{ request('end_date') }}">
+</div>
+{{-- 金額 --}}
+<div class="col-auto">
+    <select name="price" class="form-control" style="width: 160px;">
+        <option value="">金額</option>
+
+        <option value="10000" {{ request('price') == '10000' ? 'selected' : '' }}>
+            1万円未満
+        </option>
+
+        <option value="10000-20000" {{ request('price') == '10000-20000' ? 'selected' : '' }}>
+            1万円～2万円
+        </option>
+
+        <option value="20000-30000" {{ request('price') == '20000-30000' ? 'selected' : '' }}>
+            2万円～3万円
+        </option>
+
+        <option value="30000-" {{ request('price') == '30000-' ? 'selected' : '' }}>
+            3万円以上
+        </option>
+    </select>
+</div>
+
+        {{-- ④ 検索 --}}
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">
+                検索
+            </button>
+        </div>
+
+    </div>
+
+</form>
     {{-- 旅館一覧 --}}
-    @forelse($posts as $post)
-
-        <div class="card mb-4">
-
-            <div class="card-body">
-
-                <div class="row align-items-center">
-
-                    {{-- 画像 --}}
-                    <div class="col-md-3 text-center">
-
-                        @if($post->image_path)
-
-                            <img src="{{ asset('storage/' . $post->image_path) }}"
-                                 class="img-fluid"
-                                 style="max-height: 160px; object-fit: cover;">
-
-                        @else
-
-                            <div class="border p-5">
-                                画像
-                            </div>
-
-                        @endif
-
-                    </div>
-
-
-                    {{-- 旅館情報 --}}
-                    <div class="col-md-6">
-
-                        <h4>
-                            {{ $post->title }}
-                        </h4>
-
-                        <p class="mb-1">
-                            店舗名：
-                            {{ $post->user->name ?? '' }}
-                        </p>
-
-                        <p class="mb-1">
-                            店舗住所：
-                            {{ $post->address }}
-                        </p>
-
-                        <p class="mb-1">
-                            金額：
-                            {{ number_format($post->price) }}円
-                        </p>
-
-                        <p class="mb-1">
-                            予約可能日：
-                            {{ $post->reserve_date }}
-                        </p>
-
-                    </div>
-
-
-                    {{-- 詳細 --}}
-                    <div class="col-md-3 text-center">
-
-                        <a href="{{ route('post', $post->id) }}"
-                           class="btn btn-outline-primary">
-
-                            詳細
-
-                        </a>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    @empty
-
-        <p class="text-center">
-            該当する旅館がありません。
-        </p>
-
-    @endforelse
+<div
+    id="post-list"
+    data-infinite-scroll
+    data-url="{{ route('top') }}"
+    data-page-name="page"
+>
+    @include('partials.post_list_item', [
+        'posts' => $posts
+    ])
+</div>
 
 </div>
 

@@ -61,40 +61,76 @@
 
             <hr>
 
-            <div class="mb-3">
-                <h3>{{ $booking->post->title }}</h3>
+<div class="row">
+
+    {{-- 左側：旅館情報 --}}
+    <div class="col-md-7">
+
+        <div class="mb-3">
+            <h3>{{ $booking->post->title }}</h3>
+        </div>
+
+        <div class="mb-3">
+            <strong>店舗名</strong>
+            <div>
+                {{ $booking->post->user->name }}
             </div>
-            <div class="mb-3">
-    <strong>旅館名</strong>
-    <div>
-        {{ $booking->post->user->name }}
+        </div>
+
+        <div class="mb-3">
+            <strong>住所</strong>
+            <div>
+                {{ $booking->post->address }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <strong>予約可能日</strong>
+            <div>
+                {{ $booking->post->reserve_date }}以降
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <strong>予約可能人数</strong>
+            <div>
+                {{ $booking->post->max_people }}人
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <strong>金額</strong>
+            <div>
+                {{ $booking->post->price }}円
+            </div>
+        </div>
+
     </div>
+
+    {{-- 右側：旅館画像 --}}
+    <div class="col-md-5 d-flex align-items-center justify-content-center">
+
+        @if($booking->post->image_path)
+            <img
+                src="{{ asset('storage/' . $booking->post->image_path) }}"
+                class="img-fluid rounded"
+                style="max-height: 300px;"
+                alt="旅館画像"
+            >
+        @endif
+
+    </div>
+
 </div>
 
-<div class="mb-3">
-    <strong>住所</strong>
-    <div>
-        {{ $booking->post->address }}
-    </div>
+{{-- 内容 --}}
+<div class="border rounded p-4">
+    <strong>内容</strong>
+
+    <p class="mt-3 mb-0">
+        {{ $booking->post->content }}
+    </p>
 </div>
-
-            
-
-            <div class="mb-3">
-                <strong>金額</strong>
-                <div>
-                    {{ $booking->post->price }}円
-                </div>
-            </div>
-
-            <div class="border rounded p-4">
-                <strong>内容</strong>
-
-                <p class="mt-3 mb-0">
-                    {{ $booking->post->content }}
-                </p>
-            </div>
-
         </div>
 
         <div class="card-footer">

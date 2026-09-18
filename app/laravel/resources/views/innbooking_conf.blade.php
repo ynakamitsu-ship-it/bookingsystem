@@ -65,6 +65,11 @@
                     {{ $booking->post->title }}
                 </div>
 
+                <h5>住所</h5>
+                    <div class="border p-2 mb-3">
+                     {{ $booking->post->address }}
+                    </div>
+
                 <h5>金額</h5>
                 <div class="border p-2 mb-3">
                     金額：{{ $booking->post->price }}円

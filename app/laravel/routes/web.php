@@ -12,6 +12,7 @@ use App\Http\Controllers\Auth\RegisterController;
 
 Route::get('/', [HomeController::class, 'top'])->name('top');
 
+
 Route::get('/error', function () {
     return view('error');
 })->name('error');
@@ -317,13 +318,8 @@ Route::middleware(['auth', 'role:1'])->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:0,1'])->group(function () {
-
-    Route::get('/post/{id}',
-        [HomeController::class, 'post']
-    )->name('post');
-});
-
+    
+Route::get('/post/{id}', [HomeController::class, 'post'])->name('post');
 
 /*
 |--------------------------------------------------------------------------

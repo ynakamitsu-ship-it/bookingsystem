@@ -18,9 +18,18 @@
     <div class="card p-5">
 
         <div class="mb-4">
-            <h5>アイコン</h5>
-            <p>現在のアイコン</p>
-        </div>
+    <h5>アイコン</h5>
+
+    @if($user->icon)
+        <img src="{{ asset('storage/' . $user->icon) }}"
+             alt="現在のアイコン"
+             width="100"
+             height="100"
+             style="object-fit: cover; border-radius: 50%;">
+    @else
+        <p>アイコン未設定</p>
+    @endif
+</div>
 
         <div class="mb-4">
             <h5>ユーザ名</h5>
@@ -36,7 +45,7 @@
 
             <a href="{{ route('inn_account_edit') }}"
                class="btn btn-secondary">
-                ④ 戻る
+                戻る
             </a>
 
             <form action="{{ route('inn_delete_account_post') }}"
@@ -46,7 +55,7 @@
 
                 <button type="submit"
                         class="btn btn-danger">
-                    ⑤ 削除
+                    削除
                 </button>
 
             </form>

@@ -16,49 +16,8 @@
         予約一覧
     </h1>
 
-    @foreach($bookings as $booking)
-
-        <div class="card p-4 mb-4">
-
-            <div class="d-flex justify-content-between align-items-center">
-
-                {{-- 左側：予約情報 --}}
-                <div>
-                    <h4>{{ $booking->name }}</h4>
-
-                    <p>
-                        電話番号：{{ $booking->tel }}
-                    </p>
-
-                    <p>
-                        チェックイン：
-                        {{ $booking->checkin_date }}
-                    </p>
-
-                    <p class="mb-0">
-                        チェックアウト：
-                        {{ $booking->checkout_date }}
-                    </p>
-                </div>
-
-
-                {{-- 右側：確認ボタン --}}
-                <div class="ms-4">
-                    <a href="{{ route('innbooking_conf', $booking->id) }}"
-                       class="btn btn-primary px-4 py-2">
-                        確認
-                    </a>
-                </div>
-
-            </div>
-
-        </div>
-
-    @endforeach
-
-
-    {{-- マイページに戻る --}}
-    <div class="text-center mt-4">
+     {{-- マイページに戻る --}}
+    <div class="text-center mt-4 mb-4">
 
         <a href="{{ route('inn_mypage') }}"
            class="btn btn-secondary">
@@ -67,7 +26,22 @@
 
     </div>
 
+   <div id="booking-list"
+    data-infinite-scroll
+    data-url="{{ route('innbooking_list') }}"
+    data-page-name="page">
+
+    @foreach($bookings as $booking)
+
+        @include('partials.innbooking_item', ['booking' => $booking])
+
+    @endforeach
+
 </div>
 
+   
+
+</div>
+@vite('resources/js/infinite-scroll.js')
 </body>
 </html>

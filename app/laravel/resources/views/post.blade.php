@@ -45,20 +45,27 @@
                         {{ $post->title }}
                     </h1>
 
+                    
+
 
                     {{-- ⑦ブックマーク・⑨通報 --}}
                     <div class="d-flex justify-content-end gap-2 mb-4">
 
-                        {{-- ブックマーク --}}
-                        <form action="{{ url('/post/' . $post->id . '/bookmark') }}"
-                              method="POST">
-                            @csrf
+                       {{-- ブックマーク --}}
+<form action="{{ url('/post/' . $post->id . '/bookmark') }}"
+      method="POST">
+    @csrf
 
-                            <button type="submit"
-                                    class="btn btn-secondary">
-                                ブックマーク
-                            </button>
-                        </form>
+    @if($isBookmarked)
+        <button type="submit" class="btn btn-secondary">
+            ブックマーク済み
+        </button>
+    @else
+        <button type="submit" class="btn btn-secondary">
+            ブックマーク
+        </button>
+    @endif
+</form>
 
 
                         {{-- 通報 --}}
@@ -74,6 +81,18 @@
 
                     </div>
 
+                    {{-- 店舗名 --}}
+<p class="mb-3">
+    <strong>店舗名：</strong>
+    {{ $post->user->name }}
+</p>
+
+{{-- 住所 --}}
+<p class="mb-3">
+    <strong>住所：</strong>
+    {{ $post->address }}
+</p>
+
 
                     {{-- ③金額 --}}
                     <p class="mb-3">
@@ -85,7 +104,7 @@
                     {{-- ④予約可能日 --}}
                     <p class="mb-3">
                         <strong>予約可能日：</strong>
-                        {{ $post->reserve_date }}
+                        {{ $post->reserve_date }}以降
                     </p>
 
 
@@ -127,12 +146,13 @@
             <div class="row mt-4">
 
                 <div class="col-12">
+                     <h3 class="mb-3">
+                            内容
+                        </h3>
 
                     <div class="border p-4">
 
-                        <h3 class="mb-3">
-                            内容
-                        </h3>
+                       
 
                         <p class="mb-0">
                             {{ $post->content }}
@@ -146,9 +166,10 @@
 
         </div>
         <div class="d-flex justify-content-end mb-3 me-3">
-        <a href="{{ route('home') }}" class="btn btn-secondary">
-            ホームへ戻る
-        </a>
+        <a href="{{ auth()->check() ? route('home') : route('top') }}"
+   class="btn btn-secondary">
+    ホームへ戻る
+</a>
     </div>
 
 

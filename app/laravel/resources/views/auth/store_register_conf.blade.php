@@ -10,10 +10,7 @@
 
             <div class="card">
 
-                <div class="card-header text-center">
-                    店舗アカウント登録内容確認
-                </div>
-
+                
                 <div class="card-body text-center py-4">
 
                     <h2 class="mb-5">
@@ -40,7 +37,7 @@
                         <input type="hidden" name="password" value="{{ $password }}">
 
                         <button type="submit" class="btn btn-primary">
-                            ①登録
+                            登録
                         </button>
 
                     </form>

@@ -21,6 +21,9 @@
 
             <h2>{{ $post->title }}</h2>
 
+            <p>
+                店舗名：{{ $post->user->name }}
+            </p>
 
             <p>
                 住所：{{ $post->address }}
@@ -35,13 +38,24 @@
             </p>
 
             <p>内容：{{ $post->content }}</p>
-        </div>
-              <div class="col-md-2 text-center">
 
-        <a href="{{ route('inn_post', ['id' => $post->id]) }}"
-           class="btn btn-outline-primary">
-            投稿詳細
-        </a>
+           
+        </div>
+
+        {{-- 通報件数・詳細 --}}
+<div class="col-md-2 text-center">
+
+    <p class="mb-3">
+        通報件数：{{ $post->reports_count }}件
+    </p>
+
+    <a
+        href="{{ route('delete_post', $post->id) }}"
+        class="btn btn-primary"
+    >
+        詳細
+    </a>
+
 </div>
 
     </div>
