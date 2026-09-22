@@ -15,7 +15,7 @@
         <div class="col-auto">
             <a href="{{ route('delete_user', $user->id) }}"
                class="btn btn-outline-danger">
-                削除
+                非表示
             </a>
         </div>
 

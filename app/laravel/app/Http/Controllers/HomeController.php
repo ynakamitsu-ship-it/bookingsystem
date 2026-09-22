@@ -76,7 +76,7 @@ if ($request->filled('end_date')) {
 
     // 無限スクロール
     if ($request->ajax()) {
-        $html = view('partials.post_list_item', compact('posts'))->render();
+       $html = view('partials.welcome_post_item', compact('posts'))->render();
 
         return response()->json([
             'html' => $html,
@@ -103,11 +103,25 @@ public function deleteAccount()
 {
     $user = auth()->user();
 
-    $user->delete();
+    // 自分の予約を削除
+    Booking::where('user_id', $user->id)->delete();
 
-    auth()->logout();
+    // 自分のブックマークを削除
+    Bookmark::where('user_id', $user->id)->delete();
 
-    return redirect('/');
+    // 自分が行った通報を削除
+    Report::where('user_id', $user->id)->delete();
+
+    // 自分が通報されたデータを削除
+    Report::where('reported_user_id', $user->id)->delete();
+
+    // ユーザーを削除
+    // ユーザーを削除
+$user->delete();
+
+auth()->logout();
+
+return redirect('/');
 }
 
 public function accountEditConf(Request $request)
@@ -115,17 +129,19 @@ public function accountEditConf(Request $request)
     $user = auth()->user();
 
     $request->validate([
-        'name' => 'required',
+        'name' => 'required|string|max:10',
         'email' => 'required|email|unique:users,email,' . $user->id,
         'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ], [
-        'name.required' => 'ユーザ名を入力してください。',
+        'name.required' => '名前を入力してください。',
+        'name.max' => 'ユーザ名は10文字以内で入力してください。',
         'email.required' => 'メールアドレスを入力してください。',
         'email.email' => 'メールアドレスの形式が正しくありません。',
         'email.unique' => 'このメールアドレスはすでに使用されています。',
         'icon.image' => '画像ファイルを選択してください。',
         'icon.mimes' => 'JPEG、PNG、JPG、GIF形式の画像を選択してください。',
         'icon.max' => '画像のサイズは2MB以内にしてください。',
+         'icon.uploaded' => '画像のアップロードに失敗しました。',
     ]);   
 
     $iconPath = null;
@@ -197,7 +213,7 @@ public function innAccountEditConf(Request $request)
         'icon.image' => '画像ファイルを選択してください。',
         'icon.mimes' => 'JPEG、PNG、JPG、GIF形式の画像を選択してください。',
         'icon.max' => '画像のサイズは2MB以内にしてください。',
-         'icon.uploaded' => 'アイコン画像のアップロードに失敗しました。',
+         'icon.uploaded' => '画像のアップロードに失敗しました。',
     ]);
 
     // アイコンを選択していた場合、一時的に保存
@@ -251,8 +267,37 @@ public function innDeleteAccountPost()
 {
     $user = auth()->user();
 
+    // この旅館ユーザーが作った投稿IDを取得
+    $postIds = Post::where('user_id', $user->id)->pluck('id');
+
+    // 投稿に紐づく予約を削除
+    Booking::whereIn('post_id', $postIds)->delete();
+
+    // 投稿に紐づくブックマークを削除
+    Bookmark::whereIn('post_id', $postIds)->delete();
+
+    // 投稿に紐づく通報を削除
+    Report::whereIn('post_id', $postIds)->delete();
+
+    // 自分の投稿を削除
+    Post::where('user_id', $user->id)->delete();
+
+    // 自分自身がした予約
+    Booking::where('user_id', $user->id)->delete();
+
+    // 自分自身がしたブックマーク
+    Bookmark::where('user_id', $user->id)->delete();
+
+    // 自分がした通報
+    Report::where('user_id', $user->id)->delete();
+
+    // 自分が通報されたデータ
+    Report::where('reported_user_id', $user->id)->delete();
+
+    // ログアウト
     Auth::logout();
 
+    // 最後にユーザー本体を削除
     $user->delete();
 
     return redirect('/');
@@ -347,7 +392,7 @@ if ($request->filled('price')) {
 
 // 無限スクロールからのAjax通信の場合
 if ($request->ajax()) {
-    $html = view('partials.post_list_item', compact('posts'))->render();
+    $html = view('partials.welcome_post_item', compact('posts'))->render();
 
     return response()->json([
         'html' => $html,
@@ -500,11 +545,15 @@ public function bookingConfirm(Request $request, $id)
     $post = Post::where('id', $id)
     ->where('del_flg', 0)
     ->firstOrFail();
+$minCheckinDate = max(
+    now()->toDateString(),
+    $post->reserve_date
+);
 
-    $request->validate([
-        'name' => 'required|max:10',
-        'tel' => ['required', 'regex:/^[0-9-]+$/'],
-        'checkin_date' => 'required|date|after_or_equal:today',
+$request->validate([
+    'name' => 'required|max:10',
+    'tel' => ['required', 'regex:/^[0-9-]+$/'],
+    'checkin_date' => 'required|date|after_or_equal:' . $minCheckinDate,
         'checkout_date' => 'required|date|after:checkin_date',
         'booking_people' => 'required|integer|min:1|max:' . $post->max_people,
     ], [
@@ -585,7 +634,7 @@ public function reserve(Request $request, $id)
 
 public function bookmark($id)
 {
-     Post::where('id', $id)
+    Post::where('id', $id)
         ->where('del_flg', 0)
         ->firstOrFail();
 
@@ -594,17 +643,26 @@ public function bookmark($id)
         ->first();
 
     if ($bookmark) {
+
         // すでにブックマーク済みなら削除
         $bookmark->delete();
+
+        return response()->json([
+            'bookmarked' => false
+        ]);
+
     } else {
+
         // まだならブックマーク登録
         Bookmark::create([
             'user_id' => Auth::id(),
             'post_id' => $id,
         ]);
-    }
 
-    return redirect('/post/' . $id);
+        return response()->json([
+            'bookmarked' => true
+        ]);
+    }
 }
 
 public function mybookingList(Request $request)
@@ -688,10 +746,15 @@ public function mybookingEditConf(Request $request, $id)
         ->where('del_flg', 0)
         ->firstOrFail();
 
-    $request->validate([
-    'name' => 'required|string|max:10',
-    'tel' => 'required|string|max:20',
-    'checkin_date' => 'required|date|after_or_equal:today',
+$minCheckinDate = max(
+    now()->toDateString(),
+    $booking->post->reserve_date
+);
+
+$request->validate([
+    'name' => 'required|max:10',
+    'tel' => ['required', 'regex:/^[0-9-]+$/'],
+    'checkin_date' => 'required|date|after_or_equal:' . $minCheckinDate,
     'checkout_date' => 'required|date|after:checkin_date',
     'booking_people' => 'required|integer|min:1|max:' . $booking->post->max_people,
 ], [
@@ -812,10 +875,11 @@ public function reportComplete(Request $request, $id)
     ]);
 
     Report::create([
-        'user_id' => auth()->id(),
-        'post_id' => $post->id,
-        'report_reason' => $request->reason,
-    ]);
+    'user_id' => auth()->id(),
+    'post_id' => $post->id,
+    'reported_user_id' => $post->user_id,
+    'report_reason' => $request->reason,
+]);
 
     return view('report_comp');
 }
@@ -871,11 +935,13 @@ public function innReportComp(Request $request, $id)
         'reason.required' => '通報理由を入力してください。',
     ]);
 
-    Report::create([
-        'user_id' => $booking->user_id,
-        'post_id' => $booking->post_id,
-        'report_reason' => $request->input('reason'),
-    ]);
+        Report::create([
+    'user_id' => auth()->id(),
+    'post_id' => $booking->post_id,
+    'reported_user_id' => $booking->user_id,
+    'report_reason' => $request->input('reason'),
+]);
+
 
     return view('inn_report_comp', [
         'booking' => $booking
@@ -1009,7 +1075,9 @@ public function userList(Request $request)
     // 一般ユーザー
     $generalUsers = User::where('role', 0)
         ->where('del_flg', 0)
-        ->withCount('reports')
+        ->withCount([
+        'reportsReceived as reports_count'
+    ])
         ->orderByDesc('reports_count')
         ->paginate(5, ['*'], 'general_page');
 
@@ -1060,7 +1128,11 @@ public function userList(Request $request)
 public function postList(Request $request)
 {
     $posts = Post::with('user')
-        ->withCount('reports')
+        ->withCount([
+            'reports' => function ($query) {
+                $query->whereColumn('reported_user_id', 'posts.user_id');
+            }
+        ])
         ->where('del_flg', 0)
         ->orderByDesc('reports_count')
         ->orderBy('id')
@@ -1089,7 +1161,7 @@ public function deleteUser($id)
 {
     $user = User::findOrFail($id);
 
-    $reports = Report::where('user_id', $id)->get();
+    $reports = Report::where('reported_user_id', $id)->get();
 
     return view('delete_user', compact('user', 'reports'));
 }
@@ -1121,7 +1193,9 @@ public function deletePostPage($id)
 {
     $post = Post::findOrFail($id);
 
-    $reports = Report::where('post_id', $id)->get();
+    $reports = Report::where('post_id', $id)
+    ->where('reported_user_id', $post->user_id)
+    ->get();
 
     return view('delete_post', compact('post', 'reports'));
 }

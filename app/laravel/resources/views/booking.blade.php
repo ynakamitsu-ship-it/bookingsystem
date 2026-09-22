@@ -5,6 +5,7 @@
 <div class="container">
 
     <h1 class="mb-4">宿泊者情報</h1>
+    <p class="text-danger">※は必須入力です</p>
 
     <form action="{{ url('/booking/' . $post->id . '/conf') }}" method="POST">
         @csrf
@@ -12,7 +13,7 @@
         {{-- 名前 --}}
         <div class="mb-3">
             <label for="name" class="form-label">
-                名前
+                名前<span class="text-danger">※</span>
             </label>
 
             <input
@@ -33,7 +34,7 @@
         {{-- 電話番号 --}}
         <div class="mb-3">
             <label for="tel" class="form-label">
-                電話番号
+                電話番号<span class="text-danger">※</span>
             </label>
 
             <input
@@ -54,7 +55,7 @@
         {{-- チェックイン日 --}}
         <div class="mb-3">
             <label for="checkin_date" class="form-label">
-                チェックイン日
+                チェックイン日<span class="text-danger">※</span>
             </label>
 
             <input
@@ -75,7 +76,7 @@
         {{-- チェックアウト日 --}}
         <div class="mb-3">
             <label for="checkout_date" class="form-label">
-                チェックアウト日
+                チェックアウト日<span class="text-danger">※</span>
             </label>
 
             <input
@@ -96,7 +97,7 @@
         {{-- 予約人数 --}}
         <div class="mb-3">
             <label for="booking_people" class="form-label">
-                予約人数
+                予約人数<span class="text-danger">※</span>
             </label>
 
             <input

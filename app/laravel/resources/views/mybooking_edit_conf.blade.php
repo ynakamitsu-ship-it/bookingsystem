@@ -5,7 +5,7 @@
 <div class="container">
 
     <h1 class="text-center mb-5">
-        予約確認
+        予約変更内容確認
     </h1>
 
     <div class="card">

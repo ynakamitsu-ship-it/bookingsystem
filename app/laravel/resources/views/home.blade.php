@@ -5,22 +5,25 @@
 <div class="container">
 
 
-    <h1>旅館予約システム</h1>
+    
 <form method="GET" action="{{ url('/home') }}" class="mb-4">
 
     <div class="row align-items-center g-3">
 
         {{-- ① ワード検索 --}}
         <div class="col-md-3">
+            <label class="form-label">&nbsp;</label>
              <input
             type="text"
             name="keyword"
+            class="form-control"
             placeholder="タイトル・住所・内容を検索"
             value="{{ request('keyword') }}">
         </div>
 
         {{-- 開始日 --}}
 <div class="col-md-2">
+    <label class="form-label">チェックイン</label>
     <input
         type="date"
         name="start_date"
@@ -29,11 +32,15 @@
 </div>
 
 <div class="col-auto px-1">
-    ～
+    <label class="form-label">&nbsp;</label>
+    <div class="form-control border-0 px-0">
+        ～
+    </div>
 </div>
 
 {{-- 終了日 --}}
 <div class="col-md-2">
+    <label class="form-label">チェックアウト</label>
     <input
         type="date"
         name="end_date"
@@ -42,6 +49,7 @@
 </div>
 {{-- 金額 --}}
 <div class="col-auto">
+    <label class="form-label">&nbsp;</label>
     <select name="price" class="form-control" style="width: 160px;">
         <option value="">金額</option>
 
@@ -64,12 +72,14 @@
 </div>
 
         {{-- ④ 検索 --}}
-        <div class="col-md-2">
-            <button type="submit" class="btn btn-primary">
-                検索
-            </button>
-        </div>
-
+       <div class="col-md-2">
+    <label class="form-label">&nbsp;</label>
+    <div>
+        <button type="submit" class="btn btn-primary">
+            検索
+        </button>
+    </div>
+</div>
     </div>
 
 </form>
@@ -80,9 +90,9 @@
     data-url="{{ route('home') }}"
     data-page-name="page"
 >
-    @include('partials.post_list_item', [
-        'posts' => $posts
-    ])
+    @include('partials.welcome_post_item', [
+    'posts' => $posts
+])
 </div>
 
 </div>

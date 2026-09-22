@@ -13,6 +13,7 @@ class Report extends Model
     protected $fillable = [
         'user_id',
         'post_id',
+        'reported_user_id',
         'report_reason',
     ];
     const CREATED_AT = 'created_at';

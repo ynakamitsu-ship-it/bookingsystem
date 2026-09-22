@@ -115,12 +115,12 @@ public function storeRegister(Request $request)
 public function registerConfirm(Request $request)
 {
     $request->validate([
-        'name' => 'required|string|max:255',
+        'name' => 'required|string|max:10',
         'email' => 'required|email|max:255|unique:users,email',
         'password' => 'required|confirmed|min:8',
     ], [
         'name.required' => '名前を入力してください。',
-        'name.max' => '名前は255文字以内で入力してください。',
+        'name.max' => '名前は10文字以内で入力してください。',
 
         'email.required' => 'メールアドレスを入力してください。',
         'email.email' => '正しいメールアドレスを入力してください。',

@@ -7,13 +7,14 @@
     <h1 class="text-center mb-4">
         新規投稿
     </h1>
+    <p class="text-danger text-center mb-4">※は必須入力です</p>
 
 <form method="POST" action="{{ route('post.confirm') }}" enctype="multipart/form-data">
     @csrf
         {{-- ① タイトル --}}
        <div class="mb-3">
     <label for="title" class="form-label">
-        タイトル
+        タイトル<span class="text-danger">※</span>
     </label>
 
     <input
@@ -48,7 +49,7 @@
         {{-- 住所 --}}
 <div class="mb-3">
     <label for="address" class="form-label">
-        住所
+        住所<span class="text-danger">※</span>
     </label>
 
     <input
@@ -69,7 +70,7 @@
         {{-- ③ 金額 --}}
         <div class="mb-3">
     <label for="price" class="form-label">
-        金額
+        金額<span class="text-danger">※</span>
     </label>
 
     <input
@@ -90,7 +91,7 @@
         {{-- ④ 予約可能日 --}}
         <div class="mb-3">
     <label for="reserve_date" class="form-label">
-        予約可能日
+        予約可能日<span class="text-danger">※</span>
     </label>
 
     <input
@@ -111,7 +112,7 @@
         {{-- ⑤ 予約可能人数 --}}
         <div class="mb-3">
     <label for="max_people" class="form-label">
-        予約可能人数
+        予約可能人数<span class="text-danger">※</span>
     </label>
 
     <input
@@ -132,7 +133,7 @@
         {{-- ⑥ 内容 --}}
         <div class="mb-4">
     <label for="content" class="form-label">
-        内容
+        内容<span class="text-danger">※</span>
     </label>
 
     <textarea

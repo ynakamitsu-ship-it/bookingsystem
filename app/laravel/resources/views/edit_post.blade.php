@@ -8,6 +8,7 @@
     <div class="container mt-5">
 
         <h1 class="text-center mb-5">投稿内容編集</h1>
+        <p class="text-danger text-center ">※は必須入力です</p>
 
         <div class="card p-4">
 
@@ -39,7 +40,7 @@
                     {{-- タイトル --}}
                     <div class="mb-3">
                         <label class="form-label">
-                            タイトル
+                            タイトル <span class="text-danger">※</span>
                         </label>
 
                         <input
@@ -78,7 +79,7 @@
 {{-- 住所 --}}
 <div class="mb-3">
     <label class="form-label">
-        住所
+        住所 <span class="text-danger">※</span>
     </label>
 
     <input
@@ -98,7 +99,7 @@
                     {{-- 金額 --}}
                     <div class="mb-3">
                         <label class="form-label">
-                            金額
+                            金額 <span class="text-danger">※</span>
                         </label>
 
                         <input
@@ -119,7 +120,7 @@
                     {{-- 予約可能日 --}}
                     <div class="mb-3">
                         <label class="form-label">
-                            予約可能日
+                            予約可能日 <span class="text-danger">※</span>
                         </label>
 
                         <input
@@ -140,7 +141,7 @@
                     {{-- 予約可能人数 --}}
                     <div class="mb-3">
                         <label class="form-label">
-                            予約可能人数
+                            予約可能人数 <span class="text-danger">※</span>
                         </label>
 
                         <input
@@ -165,7 +166,7 @@
             <div class="mt-4">
 
                 <label class="form-label">
-                    内容
+                    内容 <span class="text-danger">※</span>
                 </label>
 
                 <textarea

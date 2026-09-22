@@ -51,20 +51,21 @@
                     {{-- ⑦ブックマーク・⑨通報 --}}
                     <div class="d-flex justify-content-end gap-2 mb-4">
 
-                       {{-- ブックマーク --}}
-<form action="{{ url('/post/' . $post->id . '/bookmark') }}"
+                      {{-- ブックマーク --}}
+<form id="bookmark-form"
+      action="{{ url('/post/' . $post->id . '/bookmark') }}"
       method="POST">
     @csrf
 
-    @if($isBookmarked)
-        <button type="submit" class="btn btn-secondary">
+    <button type="submit"
+            id="bookmark-button"
+            class="btn btn-secondary">
+        @if($isBookmarked)
             ブックマーク済み
-        </button>
-    @else
-        <button type="submit" class="btn btn-secondary">
+        @else
             ブックマーク
-        </button>
-    @endif
+        @endif
+    </button>
 </form>
 
 
@@ -178,4 +179,37 @@
 
 </div>
 
+
+<script>
+document.getElementById('bookmark-form').addEventListener('submit', function(e) {
+
+    // 通常のフォーム送信を止める
+    e.preventDefault();
+
+    const form = this;
+    const button = document.getElementById('bookmark-button');
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        if (data.bookmarked) {
+            button.textContent = 'ブックマーク済み';
+        } else {
+            button.textContent = 'ブックマーク';
+        }
+
+    })
+    .catch(error => {
+        console.error('エラー:', error);
+    });
+
+});
+</script>
 @endsection

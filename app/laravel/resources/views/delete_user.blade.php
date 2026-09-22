@@ -7,7 +7,7 @@
     <div class="card">
 
         <div class="card-header text-center">
-            削除確認
+            非表示確認
         </div>
 
         <div class="card-body">
@@ -69,13 +69,13 @@
 
                             <form method="POST"
                                   action="{{ route('delete_user.post', $user->id) }}"
-                                  onsubmit="return confirm('このユーザーを削除しますか？');">
+                                  onsubmit="return confirm('このユーザーを非表示にしますか？');">
 
                                 @csrf
 
                                 <button type="submit"
                                         class="btn btn-danger w-100">
-                                    削除
+                                    非表示
                                 </button>
 
                             </form>

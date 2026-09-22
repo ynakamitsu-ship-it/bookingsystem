@@ -56,4 +56,8 @@ public function reports()
 {
     return $this->hasMany(Report::class);
 }
+public function reportsReceived()
+{
+    return $this->hasMany(Report::class, 'reported_user_id');
+}
 }

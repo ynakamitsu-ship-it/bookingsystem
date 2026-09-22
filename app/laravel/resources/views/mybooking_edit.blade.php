@@ -20,11 +20,13 @@
                   action="{{ route('mybooking_edit_conf', $booking->id) }}">
 
                 @csrf
+                <p class="text-danger mb-4">※は必須入力です</p>
+                
 
                 {{-- 名前 --}}
                 <div class="mb-3">
                     <label class="form-label">
-                        名前
+                        名前<span class="text-danger">※</span>
                     </label>
 
                     <input type="text"
@@ -43,7 +45,7 @@
                 {{-- 電話番号 --}}
                 <div class="mb-3">
                     <label class="form-label">
-                        電話番号
+                        電話番号<span class="text-danger">※</span>
                     </label>
 
                     <input type="text"
@@ -62,7 +64,7 @@
                 {{-- チェックイン日 --}}
                 <div class="mb-3">
                     <label class="form-label">
-                        チェックイン日
+                        チェックイン日<span class="text-danger">※</span>
                     </label>
 
                     <input type="date"
@@ -81,7 +83,7 @@
                 {{-- チェックアウト日 --}}
                 <div class="mb-3">
                     <label class="form-label">
-                        チェックアウト日
+                        チェックアウト日<span class="text-danger">※</span>
                     </label>
 
                     <input type="date"
@@ -100,7 +102,7 @@
                 {{-- 予約人数 --}}
                 <div class="mb-3">
                     <label class="form-label">
-                        予約人数
+                        予約人数<span class="text-danger">※</span>
                     </label>
 
                     <input type="number"

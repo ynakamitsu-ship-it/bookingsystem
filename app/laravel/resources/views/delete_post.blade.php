@@ -7,7 +7,7 @@
     <div class="card">
 
         <div class="card-header text-center">
-            投稿削除
+            投稿非表示
         </div>
 
         <div class="card-body">
@@ -164,7 +164,7 @@
                     <form
                         method="POST"
                         action="{{ route('delete_post.post', $post->id) }}"
-                        onsubmit="return confirm('この投稿を削除しますか？');"
+                        onsubmit="return confirm('この投稿を非表示にしますか？');"
                     >
 
                         @csrf
@@ -173,7 +173,7 @@
                             type="submit"
                             class="btn btn-danger w-100"
                         >
-                            投稿削除
+                            投稿非表示
                         </button>
 
                     </form>
